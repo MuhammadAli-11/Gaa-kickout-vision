@@ -1,0 +1,26 @@
+{
+  "stage": "s02_detect",
+  "run_id": "run_4c9cad33",
+  "git_sha": "nogit",
+  "config_hash": "6d5641f5",
+  "created_utc": "2026-08-15T13:45:59+00:00",
+  "inputs": [
+    "/root/repo/data/clips/lgf26_final_w1_working.mp4"
+  ],
+  "params": {
+    "weights": "yolov8m.pt",
+    "classes": [
+      0
+    ],
+    "conf": 0.25,
+    "iou": 0.5,
+    "imgsz": 1280,
+    "device": "auto",
+    "half": true,
+    "batch": 16,
+    "max_det": 60,
+    "n_frames": 18000,
+    "wall_s": 260.774917402,
+    "throughput_fps": 69.02504343334498
+  }
+}

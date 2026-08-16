@@ -1,0 +1,9 @@
+event_id,source_timestamp,source_s,t_peak_s_approx,t_start_s,t_end_s,t_peak_s,n_players_in_contest,outcome,restart_type,coder_id,coding_pass,visibility,notes
+ko_001,8:07,487.0,20.0,,,,,,,,1,,
+ko_002,8:19,499.0,32.0,,,,,,,,1,,
+ko_003,11:38,698.0,231.0,,,,,,,,1,,
+ko_004,15:07,907.0,440.0,,,,,,,,1,,
+ko_005,15:24,924.0,457.0,,,,,,,,1,,
+ko_006,16:22,982.0,515.0,,,,,,,,1,,
+ko_007,18:13,1093.0,626.0,,,,,,,,1,,
+ko_008,18:59,1139.0,672.0,,,,,,,,1,,

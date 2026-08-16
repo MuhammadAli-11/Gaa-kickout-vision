@@ -1,0 +1,199 @@
+# =====================================================================
+# gaa-kickout-vision — single source of truth for every pipeline stage.
+#
+# The coding scheme this project automates is that of:
+#   McColgan, Bradley, Earle, Gaul & Martin (2026), Applied Sciences
+#   16(7):3277.  https://doi.org/10.3390/app16073277  (CC BY 4.0)
+# Values below marked [PAPER] come from their operational definitions.
+# Do not change those without changing docs/02 and saying so in the report.
+# Every script reads this file. Nothing is hard-coded in src/.
+# Changing a value here changes the run_id, which changes the output
+# directory, so results can never be silently overwritten.
+# =====================================================================
+
+project:
+  name: gaa-kickout-vision
+  version: "0.1.0"
+  author: "<your name>"
+  seed: 1729                      # global RNG seed (numpy, torch, sklearn)
+
+paths:
+  raw: data/raw
+  clips: data/clips
+  frames: data/frames
+  interim: data/interim
+  gt: data/gt
+  outputs: outputs
+  figures: outputs/figures
+  tables: outputs/tables
+  failures: outputs/failures
+  report: report
+
+# ---------------------------------------------------------------------
+# S00/S01 — ingestion and standardisation
+# ---------------------------------------------------------------------
+ingest:
+  hash_algorithm: sha256
+  hash_bytes: 0                   # 0 = hash whole file; else first N bytes (fast mode)
+  require_registry_entry: true    # refuse to process footage with no provenance row
+
+video:
+  fps: 25                         # ALL timestamps derive from this. Do not change mid-project.
+  width: 1280
+  height: 720
+  pix_fmt: yuv420p
+  segment_start: "00:00:00"       # trim point in the source file
+  segment_duration: "00:10:00"    # working segment length
+  jpeg_quality: 2                 # ffmpeg -q:v (2 = near-lossless, larger files)
+
+# ---------------------------------------------------------------------
+# S02 — detection
+# ---------------------------------------------------------------------
+detect:
+  weights: yolov8m.pt             # swap to runs/finetune/weights/best.pt if fine-tuned
+  classes: [0]                    # COCO class 0 = person
+  conf: 0.25
+  iou: 0.50                       # NMS IoU
+  imgsz: 1280                     # do NOT drop to 640 — players are small
+  device: auto                    # auto | cpu | 0
+  half: true                      # fp16 on GPU
+  batch: 16
+  max_det: 60                     # 30 players + officials + bench overspill
+
+# ---------------------------------------------------------------------
+# S03 — tracking
+# ---------------------------------------------------------------------
+track:
+  tracker: bytetrack              # bytetrack | botsort
+  track_high_thresh: 0.50
+  track_low_thresh: 0.10
+  new_track_thresh: 0.60
+  track_buffer: 30                # frames to keep a lost track alive (1.2 s @ 25 fps)
+  match_thresh: 0.80
+  min_track_len_frames: 5         # drop flicker tracks below this before features
+
+# ---------------------------------------------------------------------
+# S04 — scene features
+# ---------------------------------------------------------------------
+features:
+  smooth_window_frames: 5         # centred moving average on noisy series
+  velocity_window_frames: 3       # finite-difference window for d(cy)/dt
+  n_nearest_for_density: 6
+  sprint_threshold_ms: 5.5      # m/s; proxy for the 'hard run' distinguishing
+                                # Purposeful from Limited Movement [PAPER, proxy only]
+  # NOT a frame-difference measure, despite what this comment used to say: s05
+  # computes the Jaccard DISTANCE between consecutive frames' track_id sets, so
+  # this flag tracks identity turnover, not pixels. With s03 fragmenting badly
+  # (3555 ids, median lifetime 1.16s) the old 0.35 fired on ordinary ID churn and
+  # implied 857 shots at 0.84s mean — not broadcast footage.
+  # 0.85 sits on the plateau where the cut count stops moving (0.85->0.95 gives
+  # 207->202 cuts, ~3.5s mean shot). Tuned to plausibility, NOT validated against
+  # hand-marked cuts; a real detector would difference pixels off the clip.
+  scene_change_threshold: 0.85
+  min_tracks_for_valid_frame: 4   # below this the frame is a close-up, flag it
+
+# ---------------------------------------------------------------------
+# S05 — event candidate detection
+# ---------------------------------------------------------------------
+events:
+  window_s: 3.0
+  stride_s: 0.5
+  mode: rule                      # rule | learned
+  rule:
+    spread_percentile: 25         # centroid_spread below this percentile = compressed
+    velocity_percentile: 85       # vertical velocity above this = leap
+    min_tracks: 8
+    min_gap_s: 6.0                # NMS in time: kickouts cannot be 6 s apart
+  learned:
+    model: logistic               # logistic | gbdt
+    n_splits: 5
+    split: temporal_block         # temporal_block ONLY. random splits leak.
+    block_gap_s: 5.0              # purge gap between train and test blocks
+
+# ---------------------------------------------------------------------
+# S04 — pitch registration (image px -> pitch metres)
+# ---------------------------------------------------------------------
+pitch:
+  dimensions:
+    length: 145.0              # SET THIS for the venue. GAA range 130-145 m.
+    width: 88.0                # GAA range 80-90 m.
+    line_distances: [13.0, 21.0, 45.0, 65.0]   # [PAPER] LGFA usage: 21 m line
+    small_rect: [14.0, 4.5]
+    large_rect: [19.0, 13.0]
+    goal_width: 6.5
+  attacking_end: attacking     # which end the KICKING team's opponents defend
+  min_shot_len_frames: 25      # shots shorter than 1 s are not worth registering
+  ransac_px: 6.0
+  max_acceptable_rmse_m: 2.0   # above this, exclude the shot rather than code from it
+  holdout_landmarks: 2
+
+# ---------------------------------------------------------------------
+# S06 — team assignment (jersey colour)
+# ---------------------------------------------------------------------
+teams:
+  min_margin: 0.12             # k-means separation below this -> 'unassigned'
+  min_crops: 5                 # tracks with fewer usable torso crops -> 'unassigned'
+  max_unassigned_frac: 0.25    # above this, warn and consider manual assignment
+
+# ---------------------------------------------------------------------
+# S08 — the paper's coding scheme
+# ---------------------------------------------------------------------
+coding:
+  setup_window_s: 1.5          # window ending at t_start, over which formation is read
+  peak_window_s: 0.5
+  landing_cluster_k: 3         # players used to estimate the reception point
+
+  # [PAPER] Table 1 bands. Note their Table 1 lists 0-4 / 5-7 / 8-11 / 11+
+  # while the model in Table 3 contrasts 0-7 / 8-10 / 11+. Reconcile against
+  # the published tables before reporting, and state which you used.
+  defender_bands:
+    - [0, 4, "0-4"]
+    - [5, 7, "5-7"]
+    - [8, 10, "8-10"]
+    - [11, null, "11+"]
+
+  min_keeper_gap_m: 12.0          # deepest player must be this far behind the rest
+                                  # to be trusted as the goalkeeper
+  concede_max_defenders: 4        # [PAPER] concede = no attempt to pressure the KO
+  player_to_player_max_nn_m: 1.5  # [PAPER] P2P defined as staying within ~1 m of an
+                                  # opponent; 1.5 allows for registration error. Sweep it.
+  contested_max_m: 2.0            # [PAPER] contested = opponent within 2 m of receiver
+
+# ---------------------------------------------------------------------
+# S09-S11 — evaluation and statistics
+# ---------------------------------------------------------------------
+eval:
+  det_iou_thresh: 0.50
+  map_iou_range: [0.50, 0.95]
+  size_tercile_by: bbox_area      # small/medium/large split, computed on GT boxes
+  tiou_thresholds: [0.30, 0.50, 0.70]
+  headline_tiou: 0.50
+  bin_seconds: 5                  # bin width for Cohen's kappa on event presence
+  bootstrap:
+    n_resamples: 10000
+    ci: 0.95
+    unit: event                   # resample events, not frames (frames are dependent)
+  icc:
+    type: "ICC2"                  # two-way random effects, absolute agreement, single rater
+  alpha: 0.05
+
+# ---------------------------------------------------------------------
+# S09-S10 — failure audit and rendering
+# ---------------------------------------------------------------------
+audit:
+  clip_pad_s: 2.5                 # seconds either side of each FP/FN
+  export_contact_sheet: true
+
+render:
+  highlight_duration_s: 120
+  must_include_a_failure: true    # non-negotiable. see docs/12
+  draw_track_ids: true
+  draw_event_banner: true
+
+# ---------------------------------------------------------------------
+# Human-factors sub-study (optional but differentiating — see docs/10)
+# ---------------------------------------------------------------------
+human_factors:
+  enabled: true
+  log_review_time: true
+  confidence_bands: [0.0, 0.4, 0.7, 1.0]   # for trust-calibration analysis

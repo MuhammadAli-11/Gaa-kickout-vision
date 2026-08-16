@@ -1,0 +1,28 @@
+{
+  "stage": "s05_events",
+  "run_id": "run_5c0eb835",
+  "git_sha": "34fe5c9",
+  "config_hash": "5a286c55",
+  "created_utc": "2026-08-15T14:33:48+00:00",
+  "inputs": [
+    "features.parquet"
+  ],
+  "params": {
+    "resolved_mode": "rule",
+    "window_s": 3.0,
+    "stride_s": 0.5,
+    "mode": "rule",
+    "rule": {
+      "spread_percentile": 25,
+      "velocity_percentile": 85,
+      "min_tracks": 8,
+      "min_gap_s": 6.0
+    },
+    "learned": {
+      "model": "logistic",
+      "n_splits": 5,
+      "split": "temporal_block",
+      "block_gap_s": 5.0
+    }
+  }
+}

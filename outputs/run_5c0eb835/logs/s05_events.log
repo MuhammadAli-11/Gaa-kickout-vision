@@ -1,0 +1,3 @@
+19:33:46 | s05_events             | INFO    | 1494 candidate windows (3.0s window, 0.5s stride)
+19:33:48 | s05_events             | INFO    | 55 candidate events kept after temporal NMS (min gap 6.0s)
+19:33:48 | s05_events             | INFO    | SANITY: a 10-minute passage should contain roughly 12-20 kickouts. Hundreds of candidates means the score is not discriminating; two means the thresholds are strangling recall.

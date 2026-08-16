@@ -1,0 +1,302 @@
+# =====================================================================
+# Machine-readable contract for every table the pipeline emits.
+# src/lib/schema.py validates each dataframe against this at write time,
+# so a downstream stage can never silently consume a malformed table.
+# This file IS the data dictionary; docs/04 is its prose rendering.
+# =====================================================================
+
+video_registry:
+  produced_by: s00_ingest.py
+  format: csv
+  path: data/raw/video_registry.csv
+  primary_key: [video_id]
+  columns:
+    video_id:        {type: string,  desc: "Short stable id, e.g. gaa_2024_lf_r3"}
+    sha256:          {type: string,  desc: "Content hash of the source file"}
+    filename:        {type: string,  desc: "Original filename on disk"}
+    bytes:           {type: int64,   desc: "File size"}
+    duration_s:      {type: float64, units: s}
+    src_fps:         {type: float64}
+    src_width:       {type: int64}
+    src_height:      {type: int64}
+    codec:           {type: string}
+    competition:     {type: string,  desc: "e.g. Allianz League Div 1"}
+    round_or_stage:  {type: string}
+    match_date:      {type: string,  desc: "ISO 8601 date"}
+    broadcaster:     {type: string}
+    capture_source:  {type: string,  enum: [broadcast, club_fixed_cam, handheld, other]}
+    rights_status:   {type: string,  enum: [personal_local_only, licensed, public_domain, unknown]}
+    ingest_utc:      {type: string,  desc: "ISO 8601 timestamp of ingestion"}
+    notes:           {type: string}
+
+frame_manifest:
+  produced_by: s01_prepare_footage.py
+  format: csv
+  path: data/interim/{video_id}/manifest.csv
+  primary_key: [frame_idx]
+  columns:
+    frame_idx:   {type: int64,   desc: "0-based, contiguous, no gaps"}
+    timestamp_s: {type: float64, units: s, desc: "frame_idx / video.fps EXACTLY"}
+    path:        {type: string}
+    width:       {type: int64}
+    height:      {type: int64}
+    video_id:    {type: string}
+
+detections:
+  produced_by: s02_detect.py
+  format: parquet
+  path: outputs/{run_id}/detections.parquet
+  primary_key: [frame_idx, det_idx]
+  columns:
+    frame_idx:   {type: int64}
+    det_idx:     {type: int64,   desc: "index within frame, ordered by descending conf"}
+    timestamp_s: {type: float64, units: s}
+    x1:          {type: float32, units: px}
+    y1:          {type: float32, units: px}
+    x2:          {type: float32, units: px}
+    y2:          {type: float32, units: px}
+    conf:        {type: float32, range: [0, 1]}
+    class_id:    {type: int16}
+
+tracks:
+  produced_by: s03_track.py
+  format: parquet
+  path: outputs/{run_id}/tracks.parquet
+  primary_key: [track_id, frame_idx]
+  columns:
+    track_id:    {type: int64}
+    frame_idx:   {type: int64}
+    timestamp_s: {type: float64, units: s}
+    x1:          {type: float32, units: px}
+    y1:          {type: float32, units: px}
+    x2:          {type: float32, units: px}
+    y2:          {type: float32, units: px}
+    cx:          {type: float32, units: px, desc: "bbox centre x"}
+    cy:          {type: float32, units: px, desc: "bbox centre y"}
+    bbox_h:      {type: float32, units: px}
+    bbox_area:   {type: float32, units: px2}
+    conf:        {type: float32}
+
+features_image:
+  produced_by: s05_features.py --image-only
+  format: parquet
+  path: outputs/{run_id}/features_image.parquet
+  primary_key: [frame_idx]
+  columns:
+    frame_idx:              {type: int64}
+    timestamp_s:            {type: float64, units: s}
+    n_tracks:               {type: int64}
+    max_bbox_height:        {type: float32, units: px}
+    mean_bbox_height:       {type: float32, units: px}
+    cluster_density_px:     {type: float32, units: px}
+    centroid_spread_px:     {type: float32, units: px}
+    mean_vertical_velocity: {type: float32, units: px/s, desc: "smoothed -d(cy)/dt, up positive"}
+    max_vertical_velocity:  {type: float32, units: px/s}
+    scene_change_flag:      {type: int8,    enum: [0, 1]}
+    valid_frame:            {type: int8,    enum: [0, 1]}
+
+features:
+  produced_by: s05_features.py
+  format: parquet
+  path: outputs/{run_id}/features.parquet
+  primary_key: [frame_idx]
+  # The canonical feature table, and the one s07/s14/query.py actually read.
+  # features_image and features_pitch are the two halves; this is the join.
+  # cluster_density and centroid_spread carry whichever space was available:
+  # pixels under --image-only, metres once s04 has fitted homographies. Read
+  # feature_space before interpreting either — the unit is not fixed, which is
+  # exactly why the column records it rather than leaving it to be assumed.
+  columns:
+    frame_idx:              {type: int64}
+    timestamp_s:            {type: float64, units: s}
+    n_tracks:               {type: int64}
+    max_bbox_height:        {type: float32, units: px}
+    mean_bbox_height:       {type: float32, units: px}
+    cluster_density:        {type: float32, desc: "px or m — see feature_space"}
+    centroid_spread:        {type: float32, desc: "px or m — see feature_space"}
+    mean_vertical_velocity: {type: float32, units: px/s, desc: "smoothed -d(cy)/dt, up positive"}
+    max_vertical_velocity:  {type: float32, units: px/s}
+    scene_change_flag:      {type: int8,    enum: [0, 1]}
+    valid_frame:            {type: int8,    enum: [0, 1]}
+    feature_space:          {type: string,  enum: [pixel, pitch]}
+
+pitch_keypoints:
+  produced_by: s04_register_pitch.py --annotate (HUMAN clicks)
+  format: csv
+  path: data/gt/{video_id}/pitch_keypoints.csv
+  primary_key: [shot_id, landmark]
+  columns:
+    video_id:    {type: string}
+    shot_id:     {type: int64}
+    frame_idx:   {type: int64, desc: "keyframe the landmark was clicked on"}
+    landmark:    {type: string, desc: "named point from Pitch.landmarks()"}
+    img_x:       {type: float64, units: px}
+    img_y:       {type: float64, units: px}
+    pitch_x:     {type: float64, units: m, desc: "origin at pitch centre"}
+    pitch_y:     {type: float64, units: m}
+    use_for_fit: {type: int8, enum: [0, 1]}
+
+homographies:
+  produced_by: s04_register_pitch.py --fit
+  format: csv
+  path: outputs/{run_id}/homographies.csv
+  primary_key: [shot_id]
+  columns:
+    shot_id:         {type: int64}
+    n_landmarks:     {type: int64}
+    n_inliers:       {type: int64}
+    rmse_fit_m:      {type: float64, units: m}
+    rmse_holdout_m:  {type: float64, units: m, desc: "THE number to report - error on held-out points"}
+    max_holdout_m:   {type: float64, units: m}
+    n_holdout:       {type: int64}
+    validated:       {type: int8, enum: [0, 1]}
+
+track_teams:
+  produced_by: s06_assign_teams.py
+  format: csv
+  path: outputs/{run_id}/track_teams.csv
+  primary_key: [track_id]
+  columns:
+    track_id:   {type: int64}
+    team:       {type: string, enum: [team_a, team_b, unassigned]}
+    confidence: {type: float64, range: [0, 1]}
+    n_crops:    {type: int64}
+    method:     {type: string, enum: [hsv_torso_kmeans, no_usable_crop, manual]}
+
+features_pitch:
+  produced_by: s05_features.py
+  format: parquet
+  path: outputs/{run_id}/features_pitch.parquet
+  primary_key: [frame_idx]
+  columns:
+    frame_idx:             {type: int64}
+    timestamp_s:           {type: float64, units: s}
+    shot_id:               {type: int64}
+    n_players_registered:  {type: int64}
+    n_inside_65:           {type: int64, desc: "[PAPER] the key defensive count"}
+    n_inside_45:           {type: int64}
+    mean_x_m:              {type: float32, units: m}
+    spread_x_m:            {type: float32, units: m}
+    spread_y_m:            {type: float32, units: m}
+    width_used_m:          {type: float32, units: m}
+    depth_used_m:          {type: float32, units: m}
+    nn_distance_m:         {type: float32, units: m}
+    cluster_density_m:     {type: float32, units: m}
+    mean_speed_ms:         {type: float32, units: m/s}
+    max_speed_ms:          {type: float32, units: m/s}
+    frac_above_sprint:     {type: float32, range: [0, 1]}
+
+events_pred:
+  produced_by: s05_detect_events.py
+  format: csv
+  path: outputs/{run_id}/events_pred.csv
+  primary_key: [event_id]
+  columns:
+    event_id:              {type: string}
+    t_start_s:             {type: float64, units: s}
+    t_end_s:               {type: float64, units: s}
+    t_peak_s:              {type: float64, units: s}
+    duration_s:            {type: float64, units: s}
+    confidence:            {type: float64, range: [0, 1]}
+    n_players_in_contest:  {type: int64}
+    detector_mode:         {type: string, enum: [rule, learned]}
+
+gt_events:
+  produced_by: HUMAN (see docs/03_annotation_guide.md)
+  format: csv
+  path: data/gt/{video_id}/gt_events.csv
+  primary_key: [event_id]
+  columns:
+    event_id:             {type: string,  desc: "e.g. ko_001"}
+    t_start_s:            {type: float64, units: s, desc: "ball leaves keeper's foot"}
+    t_end_s:              {type: float64, units: s, desc: "first clean possession OR ball dead"}
+    t_peak_s:             {type: float64, units: s, desc: "first contact with ball at contest"}
+    n_players_in_contest: {type: int64,   desc: "players within ~5 m of landing zone"}
+    outcome:              {type: string,  enum: [own_clean, own_break, opp_clean, opp_break, out_of_play, unclear]}
+    restart_type:         {type: string,  enum: [short, medium, long, unclear]}
+    coder_id:             {type: string}
+    coding_pass:          {type: int8,    enum: [1, 2], desc: "2 = blind re-code for intra-rater"}
+    visibility:           {type: string,  enum: [full, partial_cut, partial_occluded, off_camera]}
+    notes:                {type: string}
+
+gt_boxes:
+  produced_by: HUMAN (CVAT / Label Studio export, MOT16 format)
+  format: csv
+  path: data/gt/{video_id}/gt_boxes.txt
+  desc: "MOT16 gt.txt: frame,id,bb_left,bb_top,bb_width,bb_height,conf,class,visibility"
+  primary_key: [frame, id]
+
+failure_audit:
+  produced_by: s09_failure_audit.py + HUMAN classification
+  format: csv
+  path: outputs/{run_id}/failure_audit.csv
+  primary_key: [case_id]
+  columns:
+    case_id:       {type: string}
+    error_type:    {type: string, enum: [FP, FN, boundary]}
+    t_center_s:    {type: float64, units: s}
+    clip_path:     {type: string}
+    cause:         {type: string, enum: [aerial_occlusion, camera_pan_cut, scale_distance, no_ball_ambiguity, annotation_error, other]}
+    secondary_cause: {type: string}
+    reviewer_note: {type: string}
+
+review_log:
+  produced_by: s12_review_tool.py (human-factors sub-study)
+  format: csv
+  path: outputs/{run_id}/review_log.csv
+  primary_key: [review_id]
+  columns:
+    review_id:        {type: string}
+    event_id:         {type: string}
+    model_confidence: {type: float64}
+    analyst_verdict:  {type: string, enum: [accept, reject, adjust]}
+    seconds_to_judge: {type: float64, units: s}
+    adjusted_t_peak_s: {type: float64, units: s}
+    condition:        {type: string, enum: [manual_from_scratch, model_assisted]}
+
+kickout_coding_pred:
+  produced_by: s08_code_kickouts.py
+  format: csv
+  path: outputs/{run_id}/kickout_coding_{source}.csv
+  primary_key: [event_id]
+  desc: "Automated reproduction of the McColgan et al. (2026) variable set"
+  columns:
+    event_id:              {type: string}
+    t_start_s:             {type: float64, units: s}
+    t_peak_s:              {type: float64, units: s}
+    codeable:              {type: int8, enum: [0, 1]}
+    reason_not_codeable:   {type: string}
+    defending_team:        {type: string}
+    kicking_team:          {type: string}
+    team_source:           {type: string, enum: [metadata, goalkeeper_inferred]}
+    keeper_gap_m:          {type: float64, units: m}
+    n_defenders_in_65:     {type: int64, desc: "[PAPER] PRIMARY target variable"}
+    n_defenders_band:      {type: string, desc: "[PAPER] 0-4 / 5-7 / 8-10 / 11+"}
+    n_unassigned_in_65:    {type: int64}
+    count_uncertainty:     {type: int64, desc: "+/- band from unassigned players"}
+    nn_opponent_m:         {type: float64, units: m}
+    defensive_strategy:    {type: string, enum: [zonal, player_to_player, concede, unclear]}
+    strategy_evidence:     {type: string}
+    receive_x_m:           {type: float64, units: m}
+    distance_class:        {type: string, enum: [short, long, unclear]}
+    contested_proxy:       {type: string, enum: [contested, uncontested, unclear]}
+    n_registered_setup:    {type: int64}
+    detector_source:       {type: string, enum: [gt_timestamps, predicted_timestamps]}
+
+gt_coding:
+  produced_by: HUMAN (docs/03) - manual coding using the paper's definitions
+  format: csv
+  path: data/gt/{video_id}/gt_coding.csv
+  primary_key: [event_id, coding_pass]
+  columns:
+    event_id:            {type: string}
+    n_defenders_in_65:   {type: int64}
+    n_defenders_band:    {type: string}
+    defensive_strategy:  {type: string, enum: [zonal, player_to_player, concede, unclear]}
+    distance_class:      {type: string, enum: [short, long, unclear]}
+    contested_proxy:     {type: string, enum: [contested, uncontested, unclear]}
+    kickout_won:         {type: string, enum: [won, lost, unclear], desc: "[PAPER] outcome, not modelled"}
+    coder_id:            {type: string}
+    coding_pass:         {type: int8, enum: [1, 2]}
+    confidence:          {type: string, enum: [high, medium, low]}
+    notes:               {type: string}

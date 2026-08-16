@@ -1,0 +1,20 @@
+{
+  "stage": "s03_track",
+  "run_id": "run_4c9cad33",
+  "git_sha": "nogit",
+  "config_hash": "6d5641f5",
+  "created_utc": "2026-08-15T13:52:20+00:00",
+  "inputs": [
+    "/root/repo/data/clips/lgf26_final_w1_working.mp4"
+  ],
+  "params": {
+    "tracker": "bytetrack",
+    "track_high_thresh": 0.5,
+    "track_low_thresh": 0.1,
+    "new_track_thresh": 0.6,
+    "track_buffer": 30,
+    "match_thresh": 0.8,
+    "min_track_len_frames": 5,
+    "wall_s": 373.496563951
+  }
+}
