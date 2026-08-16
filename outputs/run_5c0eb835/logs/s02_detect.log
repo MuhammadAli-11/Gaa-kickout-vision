@@ -1,0 +1,5 @@
+13:09:28 | s02_detect             | INFO    | detector=yolov8m.pt imgsz=1280 conf=0.25 device=auto
+13:19:06 | s02_detect             | INFO    | detector=yolov8m.pt imgsz=1280 conf=0.25 device=auto
+13:41:38 | s02_detect             | INFO    | detector=yolov8m.pt imgsz=1280 conf=0.25 device=auto
+13:45:59 | s02_detect             | INFO    | frames=18000 dets=221083 wall=260.8s throughput=69.03 fps (21.7 GPU-s per video-minute)
+13:45:59 | s02_detect             | INFO    | mean detections/frame = 12.28 (expect 8-22 on a wide GAA shot)

@@ -1,0 +1,14 @@
+{
+  "carried_forward_from": "run_4c9cad33",
+  "into": "run_5c0eb835",
+  "files": [
+    "detections.parquet",
+    "tracks.parquet",
+    "provenance_s02.json",
+    "provenance_s03.json",
+    "logs/"
+  ],
+  "reason": "features.scene_change_threshold 0.35 -> 0.85 changed the config hash and therefore run_id. s02/s03 read only cfg[detect]/cfg[track] and are unaffected by that change, so re-running them on Modal would reproduce identical output at real GPU cost.",
+  "caveat": "provenance_s02/s03.json still record run_id=run_4c9cad33. That is deliberate and correct: they were produced under that config hash. Do not rewrite them to match the directory.",
+  "noted_utc": "2026-08-15T14:19:54+00:00"
+}

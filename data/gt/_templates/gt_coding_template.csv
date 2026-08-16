@@ -1,0 +1,2 @@
+event_id,n_defenders_in_65,n_defenders_band,defensive_strategy,distance_class,contested_proxy,kickout_won,coder_id,coding_pass,confidence,notes
+ko_001,9,8-10,zonal,short,uncontested,won,XX,1,high,"example row - delete before coding"

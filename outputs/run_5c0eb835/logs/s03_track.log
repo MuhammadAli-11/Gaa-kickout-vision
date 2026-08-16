@@ -1,0 +1,3 @@
+13:52:20 | s03_track              | INFO    | tracks=3555 (dropped 3735 shorter than 5 frames) rows=187761 wall=373.5s
+13:52:20 | s03_track              | INFO    | mean tracks/frame=10.7  median track length=29.0 frames (1.16s)
+13:52:20 | s03_track              | INFO    | RED FLAG CHECK: if unique track_ids ~= mean tracks/frame, tracking is not actually associating across frames.

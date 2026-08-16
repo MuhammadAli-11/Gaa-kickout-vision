@@ -1,0 +1,2 @@
+19:02:43 | s05_features           | INFO    | image features: 18000 frames | valid 67% | cuts 1702
+19:02:43 | s05_features           | INFO    | stopping before pitch space. Next: s04_register_pitch.py --list-shots

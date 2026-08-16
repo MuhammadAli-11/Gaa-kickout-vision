@@ -1,0 +1,2 @@
+event_id,t_start_s,t_end_s,t_peak_s,n_players_in_contest,outcome,restart_type,coder_id,coding_pass,visibility,notes
+ko_001,42.16,46.88,44.52,5,own_break,long,XX,1,full,"example row - delete before coding"

@@ -1,0 +1,27 @@
+# Kickout timestamps, source-video time. One per line.
+# Lines starting with # are ignored. Add a note after the time if useful.
+2:35
+3:11
+6:10
+8:07
+8:19
+11:38
+15:07
+15:24
+16:22
+18:13
+18:59
+22:37
+24:36
+27:11
+29:03
+32:24
+32:28
+32:34
+# 39:00  half-time restart - NOT a kickout, excluded per docs/03
+44:41
+46:14
+48:05
+50:43
+50:51
+55:54

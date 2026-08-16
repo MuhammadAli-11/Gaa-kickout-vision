@@ -1,0 +1,3 @@
+window,video_id,source_start_s,source_end_s,duration_s,n_kickouts,segment_start,segment_duration
+1,lgf26_final_w1,467.0,1187.0,720.0,8,00:07:47,00:12:00
+2,lgf26_final_w2,1337.0,2057.0,720.0,7,00:22:17,00:12:00
