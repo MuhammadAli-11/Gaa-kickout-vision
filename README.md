@@ -105,13 +105,13 @@ ground truth, every tracker break is now correctly charged.
 
      filenames are already wired up so nothing else needs editing. -->
 
-![Annotated blocks: ground truth against detector output](docs/img/fig_annotation_blocks.svg)
+![Annotated blocks: ground truth against detector output](docs/img/blk_01.png)
 
 *Figure 1 — Hand annotation against YOLOv8m output on `blk_01` (420–480 s)
 
 and `blk_02` (600–660 s).*
 
-![Box-size distributions, annotation against detector](docs/img/fig_annotation_size_gap.svg)
+![Box-size distributions, annotation against detector](docs/img/blk_02.png)
 
 *Figure 2 — Box area and aspect ratio, 4,384 hand boxes against 6,056
 
