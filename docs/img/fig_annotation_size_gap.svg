@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 300" width="880" height="300"
+     role="img" aria-label="Placeholder for the annotation size-gap figure">
+  <style>
+    .bg   { fill: #f6f7f9; }
+    .edge { fill: none; stroke: #c3c9d2; stroke-width: 2; stroke-dasharray: 8 6; }
+    .t1   { fill: #2b3138; font: 600 17px system-ui, -apple-system, "Segoe UI", sans-serif; }
+    .t2   { fill: #5b6470; font: 400 13px system-ui, -apple-system, "Segoe UI", sans-serif; }
+    .t3   { fill: #78828f; font: 400 12px ui-monospace, SFMono-Regular, Consolas, monospace; }
+    @media (prefers-color-scheme: dark) {
+      .bg   { fill: #16191d; }
+      .edge { stroke: #3a424c; }
+      .t1   { fill: #e6e9ed; }
+      .t2   { fill: #a2acb8; }
+      .t3   { fill: #8c96a3; }
+    }
+  </style>
+  <rect class="bg" x="0" y="0" width="880" height="300" rx="10"/>
+  <rect class="edge" x="14" y="14" width="852" height="272" rx="8"/>
+  <text class="t1" x="440" y="126" text-anchor="middle">Figure 2 — box-size distributions, annotation vs detector</text>
+  <text class="t2" x="440" y="156" text-anchor="middle">Bbox area and aspect ratio for the 4,384 hand boxes against the 6,056 detections on the same 546 frames.</text>
+  <text class="t2" x="440" y="178" text-anchor="middle">Caption should give the aspect medians (GT 1.63, detector 2.16) and state which direction is looser.</text>
+  <text class="t3" x="440" y="212" text-anchor="middle">replace this file: docs/img/fig_annotation_size_gap.svg (or .png)</text>
+</svg>

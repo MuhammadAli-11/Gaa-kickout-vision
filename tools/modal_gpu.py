@@ -31,9 +31,23 @@ Usage:
 """
 from __future__ import annotations
 
+from pathlib import Path
+
 import modal
+import yaml
 
 REPO = "/root/repo"
+
+# Read the GPU choice from config.yaml rather than hardcoding it. Modal needs
+# these at decoration time, so this runs locally at import, before any remote
+# work — which also means a bad value fails immediately instead of after an
+# image build.
+_CFG = yaml.safe_load((Path(__file__).resolve().parents[1] / "config.yaml").read_text())
+_M = _CFG.get("modal", {})
+GPU = _M.get("gpu", "A10G")
+TIMEOUT_S = int(_M.get("timeout_s", 7200))
+DATA_VOL = _M.get("data_volume", "gaa-kickout-data")
+OUT_VOL = _M.get("output_volume", "gaa-kickout-outputs")
 
 app = modal.App("gaa-kickout-gpu")
 
@@ -74,17 +88,60 @@ REQUIRED_FILES = ["config.yaml", "schemas/tables.yaml"]
 
 # Clips in, outputs out. Kept separate so the ~380 MB clip is uploaded once
 # and never re-downloaded when you fetch results.
-data_vol = modal.Volume.from_name("gaa-kickout-data", create_if_missing=True)
-out_vol = modal.Volume.from_name("gaa-kickout-outputs", create_if_missing=True)
+data_vol = modal.Volume.from_name(DATA_VOL, create_if_missing=True)
+out_vol = modal.Volume.from_name(OUT_VOL, create_if_missing=True)
+
+
+@app.function(image=image, gpu=GPU, timeout=300)
+def gpu_check() -> dict:
+    """Confirm the container actually has a CUDA device before spending on it.
+
+    Worth its own function: a CPU-only torch wheel imports and runs fine, it is
+    just ~50x slower, so a silent fallback to CPU looks like a slow run rather
+    than a broken one. Cheap to call, and it fails loudly.
+    """
+    import subprocess
+
+    import torch
+
+    info = {
+        "torch": torch.__version__,
+        "cuda_available": bool(torch.cuda.is_available()),
+        "device_count": int(torch.cuda.device_count()),
+    }
+    if not info["cuda_available"]:
+        raise SystemExit(
+            f"torch {torch.__version__} reports no CUDA device. The image has a "
+            "CPU-only wheel, or the function lost its gpu= argument."
+        )
+    info["device_name"] = torch.cuda.get_device_name(0)
+    info["capability"] = ".".join(str(c) for c in torch.cuda.get_device_capability(0))
+    info["total_mem_gb"] = round(
+        torch.cuda.get_device_properties(0).total_memory / 1e9, 1)
+
+    # A real allocation and matmul: is_available() can be true on a device that
+    # then fails to allocate.
+    a = torch.randn(4096, 4096, device="cuda")
+    torch.cuda.synchronize()
+    b = (a @ a).sum().item()
+    info["matmul_ok"] = bool(b == b)  # NaN-safe
+    info["nvidia_smi"] = subprocess.run(
+        ["nvidia-smi", "--query-gpu=name,memory.total,driver_version",
+         "--format=csv,noheader"],
+        capture_output=True, text=True).stdout.strip()
+    for k, v in info.items():
+        print(f"  {k:16} {v}")
+    return info
 
 
 @app.function(
     image=image,
-    gpu="A10G",
+    gpu=GPU,
     volumes={f"{REPO}/data": data_vol, f"{REPO}/outputs": out_vol},
-    timeout=60 * 60 * 2,
+    timeout=TIMEOUT_S,
 )
-def run_stages(video_id: str, stages: list[str]) -> dict:
+def run_stages(video_id: str, stages: list[str], limit: int = 0) -> dict:
+    import json
     import os
     import shutil
     import subprocess
@@ -120,14 +177,37 @@ def run_stages(video_id: str, stages: list[str]) -> dict:
     for st in stages:
         if st not in scripts:
             raise SystemExit(f"unknown stage {st!r}; expected s02 and/or s03")
-        print(f"\n=== {st} :: {video_id} ===", flush=True)
-        subprocess.run(
-            [sys.executable, scripts[st], "--video-id", video_id],
-            check=True,
-        )
+        cmd = [sys.executable, scripts[st], "--video-id", video_id]
+        # Only s02 takes --limit. s03's tracker has no frame cap and adding one
+        # would mean editing src/, so smoke-test s03 with a genuinely short
+        # clip (a 35 s segment) rather than a truncated long one.
+        if limit and st == "s02":
+            cmd += ["--limit", str(limit)]
+        print(f"\n=== {st} :: {video_id}{f' (limit {limit})' if limit and st == 's02' else ''} ===",
+              flush=True)
+        subprocess.run(cmd, check=True)
 
     # Without an explicit commit the writes stay in the container.
     out_vol.commit()
+
+    # Throughput is already measured by the stages and written to provenance;
+    # read it back rather than re-timing, so the reported number is the same one
+    # the run recorded.
+    perf = {}
+    for run_dir in (Path(REPO) / "outputs").glob("run_*"):
+        for st in stages:
+            p = run_dir / f"provenance_{st}.json"
+            if not p.exists():
+                continue
+            params = json.loads(p.read_text()).get("params", {})
+            wall = params.get("wall_s")
+            nfr = params.get("n_frames")
+            entry = {"wall_s": round(wall, 1) if wall else None}
+            if params.get("throughput_fps"):
+                entry["throughput_fps"] = round(params["throughput_fps"], 2)
+            if wall and nfr:
+                entry["gpu_s_per_video_min"] = round(wall / (nfr / 25 / 60), 1)
+            perf[st] = entry
 
     produced = sorted(
         str(p.relative_to(Path(REPO) / "outputs"))
@@ -135,11 +215,31 @@ def run_stages(video_id: str, stages: list[str]) -> dict:
         if p.is_file()
     )
     print("\nproduced:", *produced, sep="\n  ")
-    return {"video_id": video_id, "files": produced}
+    if perf:
+        print("\nperformance:")
+        for st, e in perf.items():
+            print(f"  {st}: {e}")
+    return {"video_id": video_id, "files": produced, "performance": perf}
 
 
 @app.local_entrypoint()
-def main(video_id: str, stages: str = "s02,s03") -> None:
-    result = run_stages.remote(video_id, [s.strip() for s in stages.split(",")])
+def main(video_id: str = "", stages: str = "s02,s03", limit: int = 0,
+         check_gpu: bool = False) -> None:
+    """
+    modal run tools/modal_gpu.py --check-gpu
+    modal run tools/modal_gpu.py --video-id data_2_seg02 --stages s02 --limit 30
+    modal run tools/modal_gpu.py --video-id lgf26_final_w1
+    """
+    if check_gpu:
+        gpu_check.remote()
+        if not video_id:
+            return
+
+    if not video_id:
+        raise SystemExit("--video-id is required unless only --check-gpu is given")
+
+    result = run_stages.remote(video_id, [s.strip() for s in stages.split(",")], limit)
     print(f"\ndone: {result['video_id']}")
+    for st, e in (result.get("performance") or {}).items():
+        print(f"  {st}: {e}")
     print("fetch with:  modal volume get gaa-kickout-outputs <run_id> outputs/")

@@ -114,6 +114,11 @@ inflates every number; you want at least one block containing a camera cut.
 **Tool:** CVAT (recommended — has interpolation and MOT export) or Label
 Studio. Single class, `player`.
 
+![Box annotation conventions: a correct tight box beside four common errors — loose box, clipped at the knees, shadow included, and two players merged into one box](img/annotation_conventions.svg)
+
+*Reference card — keep it open in a second window while boxing. The rules
+below are the same ones it summarises.*
+
 **Rules**
 
 - Box every person on the field of play, including officials — then use

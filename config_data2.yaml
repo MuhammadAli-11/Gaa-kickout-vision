@@ -1,0 +1,215 @@
+# =====================================================================
+# config_data2.yaml — Project 1 config for the data_2 compilation ONLY.
+#
+# Derived from config.yaml with ONE change: detect.imgsz 1280 -> 960.
+#
+# Why that is safe HERE and nowhere else: data_2.mp4 is natively 854x478
+# and is upscaled to 1280x720 by s01. Inference at imgsz 1280 therefore
+# spends its extra compute on interpolated pixels that carry no
+# information. Measured on 6 frames: imgsz 960 agrees with imgsz 1280 on
+# 100% of reference boxes at IoU 0.5, finds slightly MORE boxes
+# (13.83 vs 13.33 per frame), and runs 2.2x faster (1.35 vs 2.93 s/frame
+# on this CPU). Small n, stated as such.
+#
+# DO NOT reuse this file for lgf26_final_*, which is natively 1280-wide.
+# There the 1280 -> 960 change would discard real resolution and is
+# exactly the small-object recall collapse s02's docstring warns about.
+#
+# Because detect.imgsz is in the run_id hash subset, this config resolves
+# to its own outputs/run_<hash>/ directory and cannot collide with or
+# overwrite any lgf26_final_w1 artefact.
+# =====================================================================
+project:
+  name: gaa-kickout-vision
+  version: 0.1.0
+  author: <your name>
+  seed: 1729
+paths:
+  raw: data/raw
+  clips: data/clips
+  frames: data/frames
+  interim: data/interim
+  gt: data/gt
+  outputs: outputs
+  figures: outputs/figures
+  tables: outputs/tables
+  failures: outputs/failures
+  report: report
+modal:
+  gpu: A10G
+  timeout_s: 7200
+  data_volume: gaa-kickout-data
+  output_volume: gaa-kickout-outputs
+ingest:
+  hash_algorithm: sha256
+  hash_bytes: 0
+  require_registry_entry: true
+annotation:
+  holdout_video_ids:
+  - lgf26_final_w2
+  n_frames: 300
+  small_oversample: 2.0
+  min_outside_contest: 0.35
+  contest_pad_s: 5.0
+  block_s: 60.0
+  val_block_frac: 0.25
+  jpeg_quality: 2
+  jpeg_quality_pct: 95
+  min_boxes_per_frame: 4
+  blocks:
+    n_blocks: 2
+    box_every_n_frames: 5
+    require_kickout_per_block: true
+    min_blocks_with_cut: 1
+    forbid_exclusion_overlap: true
+    search_stride_s: 60.0
+    n_val_blocks: 1
+    confirmed_cuts_s: []
+    confirmed_pans_s:
+    - 652.5
+segments:
+  pad_before_s: 10.0
+  pad_after_s: 25.0
+  merge_touching: false
+  min_segment_s: 5.0
+video:
+  fps: 25
+  width: 1280
+  height: 720
+  pix_fmt: yuv420p
+  segment_start: 00:00:00
+  segment_duration: 00:10:00
+  jpeg_quality: 2
+detect:
+  weights: yolov8m.pt
+  classes:
+  - 0
+  conf: 0.25
+  iou: 0.5
+  imgsz: 960
+  device: auto
+  half: true
+  batch: 16
+  max_det: 60
+track:
+  tracker: bytetrack
+  track_high_thresh: 0.5
+  track_low_thresh: 0.1
+  new_track_thresh: 0.6
+  track_buffer: 30
+  match_thresh: 0.8
+  min_track_len_frames: 5
+features:
+  smooth_window_frames: 5
+  velocity_window_frames: 8
+  repeat_frame:
+    enabled: true
+    diff_threshold: 0.0005
+    downscale:
+    - 192
+    - 108
+    drop_from_velocity: true
+  n_nearest_for_density: 6
+  sprint_threshold_ms: 5.5
+  scene_change_threshold: 0.85
+  min_tracks_for_valid_frame: 4
+events:
+  window_s: 3.0
+  stride_s: 0.5
+  mode: rule
+  rule:
+    terms:
+    - compress
+    - density
+    - quality
+    spread_percentile: 25
+    velocity_percentile: 85
+    peak_from: mean_vertical_velocity
+    min_tracks: 8
+    min_gap_s: 6.0
+  learned:
+    model: logistic
+    n_splits: 5
+    split: temporal_block
+    block_gap_s: 5.0
+pitch:
+  dimensions:
+    length: 145.0
+    width: 88.0
+    line_distances:
+    - 13.0
+    - 21.0
+    - 45.0
+    - 65.0
+    small_rect:
+    - 14.0
+    - 4.5
+    large_rect:
+    - 19.0
+    - 13.0
+    goal_width: 6.5
+  attacking_end: attacking
+  min_shot_len_frames: 25
+  ransac_px: 6.0
+  max_acceptable_rmse_m: 2.0
+  holdout_landmarks: 2
+teams:
+  min_margin: 0.12
+  min_crops: 5
+  max_unassigned_frac: 0.25
+coding:
+  setup_window_s: 1.5
+  peak_window_s: 0.5
+  landing_cluster_k: 3
+  defender_bands:
+  - - 0
+    - 4
+    - 0-4
+  - - 5
+    - 7
+    - 5-7
+  - - 8
+    - 10
+    - 8-10
+  - - 11
+    - null
+    - 11+
+  min_keeper_gap_m: 12.0
+  concede_max_defenders: 4
+  player_to_player_max_nn_m: 1.5
+  contested_max_m: 2.0
+eval:
+  det_iou_thresh: 0.5
+  map_iou_range:
+  - 0.5
+  - 0.95
+  size_tercile_by: bbox_area
+  tiou_thresholds:
+  - 0.3
+  - 0.5
+  - 0.7
+  headline_tiou: 0.5
+  bin_seconds: 5
+  bootstrap:
+    n_resamples: 10000
+    ci: 0.95
+    unit: event
+  icc:
+    type: ICC2
+  alpha: 0.05
+audit:
+  clip_pad_s: 2.5
+  export_contact_sheet: true
+render:
+  highlight_duration_s: 120
+  must_include_a_failure: true
+  draw_track_ids: true
+  draw_event_banner: true
+human_factors:
+  enabled: true
+  log_review_time: true
+  confidence_bands:
+  - 0.0
+  - 0.4
+  - 0.7
+  - 1.0

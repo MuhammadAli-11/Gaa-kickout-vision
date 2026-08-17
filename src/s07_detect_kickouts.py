@@ -28,7 +28,29 @@ FEATURE_COLS = ["n_tracks", "cluster_density", "max_bbox_height", "centroid_spre
                 "mean_vertical_velocity", "max_vertical_velocity"]
 
 
-def windows(feat: pd.DataFrame, fps: int, window_s: float, stride_s: float) -> pd.DataFrame:
+def _peak_time(chunk: pd.DataFrame, peak_from: str) -> float:
+    """Locate the contest instant inside a window.
+
+    `mean_vertical_velocity` (argmax) stays the default. The framing-scale
+    confound in docs/10 does NOT reach here: it is a between-window effect.
+    Apparent player size varies 4.4x more across windows (CV 0.662) than
+    within one 3 s window (CV 0.150), so scale is effectively constant while
+    the argmax is taken. `centroid_spread` (argmin) was measured as an
+    alternative and did slightly worse, so it is offered but not preferred.
+    """
+    if peak_from == "mean_vertical_velocity":
+        col, pick = chunk.mean_vertical_velocity, "idxmax"
+    elif peak_from == "centroid_spread":
+        col, pick = chunk.centroid_spread, "idxmin"
+    else:
+        raise ValueError(f"events.rule.peak_from: unknown value {peak_from!r}")
+    if not col.notna().any():
+        return float(chunk.timestamp_s.mean())
+    return float(chunk.loc[getattr(col, pick)(), "timestamp_s"])
+
+
+def windows(feat: pd.DataFrame, fps: int, window_s: float, stride_s: float,
+            peak_from: str = "mean_vertical_velocity") -> pd.DataFrame:
     w = int(round(window_s * fps)); s = int(round(stride_s * fps))
     rows = []
     for start in range(0, max(len(feat) - w, 0) + 1, s):
@@ -40,24 +62,47 @@ def windows(feat: pd.DataFrame, fps: int, window_s: float, stride_s: float) -> p
             r[f"{c}_min"] = v.min(); r[f"{c}_max"] = v.max()
         r["cut_frac"] = chunk.scene_change_flag.mean()
         r["valid_frac"] = chunk.valid_frame.mean()
-        r["t_peak_s"] = float(chunk.loc[chunk.mean_vertical_velocity.idxmax(), "timestamp_s"]) \
-            if chunk.mean_vertical_velocity.notna().any() else float(chunk.timestamp_s.mean())
+        r["t_peak_s"] = _peak_time(chunk, peak_from)
         r["n_players_in_contest"] = int(chunk.n_tracks.max())
         rows.append(r)
     return pd.DataFrame(rows)
 
 
-def score_rule(W: pd.DataFrame, cfg: dict) -> np.ndarray:
+def score_rule(W: pd.DataFrame, cfg: dict, terms: list[str] | None = None) -> np.ndarray:
+    """Product of the terms named in `events.rule.terms`, each clipped to [0,1].
+
+    `leap` was removed from the default on 2026-08-16. It rewarded high
+    max vertical velocity, but that feature is systematically LOWER at real
+    contests: the broadcast frames a kickout wide (players ~2.3x smaller than
+    in open play) and pixel velocity scales with apparent size. The term was
+    therefore penalising exactly the windows it was meant to promote. See
+    docs/10 `framing_scale`. It stays selectable so the before/after in the
+    report can be regenerated rather than quoted from memory.
+    """
     r = cfg["events"]["rule"]
+    terms = list(r.get("terms", ["compress", "density", "quality"]) if terms is None else terms)
+
     spread_thr = np.nanpercentile(W.centroid_spread_mean, r["spread_percentile"])
-    vel_thr = np.nanpercentile(W.mean_vertical_velocity_max, r["velocity_percentile"])
-    # Each term in [0,1]; product keeps the score interpretable and makes
-    # the confidence axis of the PR curve meaningful rather than arbitrary.
-    compress = np.clip((spread_thr - W.centroid_spread_mean) / max(spread_thr, 1e-6) + 0.5, 0, 1)
-    leap = np.clip(W.mean_vertical_velocity_max / max(vel_thr, 1e-6), 0, 1)
-    density = np.clip(W.n_tracks_max / max(r["min_tracks"], 1), 0, 1)
-    quality = np.clip(1.0 - W.cut_frac, 0, 1) * W.valid_frac
-    return (compress * leap * density * quality).fillna(0).values
+    available = {
+        "compress": np.clip((spread_thr - W.centroid_spread_mean) / max(spread_thr, 1e-6) + 0.5, 0, 1),
+        "density": np.clip(W.n_tracks_max / max(r["min_tracks"], 1), 0, 1),
+        "quality": np.clip(1.0 - W.cut_frac, 0, 1) * W.valid_frac,
+    }
+    if "leap" in terms:
+        vel_thr = np.nanpercentile(W.mean_vertical_velocity_max, r["velocity_percentile"])
+        available["leap"] = np.clip(W.mean_vertical_velocity_max / max(vel_thr, 1e-6), 0, 1)
+
+    unknown = [t for t in terms if t not in available]
+    if unknown:
+        raise ValueError(f"events.rule.terms: unknown term(s) {unknown}; "
+                         f"choose from {sorted(available)}")
+    if not terms:
+        raise ValueError("events.rule.terms is empty — the score would be undefined")
+
+    score = available[terms[0]]
+    for t in terms[1:]:
+        score = score * available[t]
+    return score.fillna(0).values
 
 
 def nms_time(W: pd.DataFrame, scores: np.ndarray, min_gap_s: float) -> list[int]:
@@ -85,10 +130,17 @@ def main() -> None:
     mode = args.mode or ev["mode"]
 
     feat = read_table("features", od / "features.parquet")
-    W = windows(feat, cfg["video"]["fps"], ev["window_s"], ev["stride_s"])
+    W = windows(feat, cfg["video"]["fps"], ev["window_s"], ev["stride_s"],
+                peak_from=ev["rule"].get("peak_from", "mean_vertical_velocity"))
     log.info("%d candidate windows (%.1fs window, %.1fs stride)", len(W), ev["window_s"], ev["stride_s"])
 
     if mode == "rule":
+        terms = ev["rule"].get("terms", ["compress", "density", "quality"])
+        log.info("rule score = product of %s", " * ".join(terms))
+        if "leap" in terms:
+            log.warning("the `leap` term is ENABLED. It is known to contribute BACKWARDS on "
+                        "broadcast footage (docs/10 framing_scale) and is retained only for "
+                        "reproducing the pre-correction comparison.")
         scores = score_rule(W, cfg)
     else:
         from sklearn.linear_model import LogisticRegression

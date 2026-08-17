@@ -1,0 +1,4 @@
+14:50:58 | s05_events             | INFO    | 1494 candidate windows (3.0s window, 0.5s stride)
+14:50:58 | s05_events             | INFO    | rule score = product of compress * density * quality
+14:51:00 | s05_events             | INFO    | 70 candidate events kept after temporal NMS (min gap 6.0s)
+14:51:00 | s05_events             | INFO    | SANITY: a 10-minute passage should contain roughly 12-20 kickouts. Hundreds of candidates means the score is not discriminating; two means the thresholds are strangling recall.

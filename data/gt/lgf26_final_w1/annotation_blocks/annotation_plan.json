@@ -1,0 +1,56 @@
+{
+  "video_id": "lgf26_final_w1",
+  "mode": "contiguous_blocks",
+  "block_length_s": 60.0,
+  "box_every_n_frames": 5,
+  "fps": 25,
+  "n_blocks": 2,
+  "keyframes_total": 600,
+  "estimated_boxes": 6264,
+  "val_blocks": [
+    "blk_02"
+  ],
+  "split_unit": "time_block (never by frame: adjacent frames are near-duplicates and a frame split leaks val into train)",
+  "exclusions_applied": "data/gt/lgf26_final_w1/excluded_intervals.csv \u2014 blocks overlapping any candidate replay/slow-motion interval were rejected outright",
+  "cut_requirement_status": "UNCONFIRMED \u2014 judged on scene_change_flag (unvalidated track-churn proxy). Pixel scan found no hard cut cleanly separable from fast panning.",
+  "holdout_never_sampled": [
+    "lgf26_final_w2"
+  ],
+  "frames_covered_by_interpolation": 3000,
+  "estimated_hours": {
+    "1.5 s/box": 2.6,
+    "2.5 s/box": 4.3,
+    "4.0 s/box": 7.0
+  },
+  "estimated_hours_note": "est_boxes counts DETECTED boxes, so it under-counts wherever the detector missed a player - which is the small tercile, which is the point of annotating. Treat these hours as a floor, not a budget.",
+  "blocks": [
+    {
+      "t_start_s": 420.0,
+      "t_end_s": 480.0,
+      "n_kickouts": 2,
+      "kickout_times": "440.0;457.0",
+      "excl_overlap_s": 0.0,
+      "churn_flags": 107,
+      "n_frames_with_boxes": 1464,
+      "mean_boxes_per_frame": 11.07,
+      "mean_small_frac": 0.131,
+      "block_id": "blk_01",
+      "reason": "2 kickout(s) at 440.0;457.0s; no overlap with a replay/slow-motion candidate; 107 track-churn flags; 11.1 boxes/frame, 13% small-tercile",
+      "split": "train"
+    },
+    {
+      "t_start_s": 600.0,
+      "t_end_s": 660.0,
+      "n_kickouts": 1,
+      "kickout_times": "626.0",
+      "excl_overlap_s": 0.0,
+      "churn_flags": 50,
+      "n_frames_with_boxes": 1484,
+      "mean_boxes_per_frame": 10.13,
+      "mean_small_frac": 0.189,
+      "block_id": "blk_02",
+      "reason": "1 kickout(s) at 626.0s; no overlap with a replay/slow-motion candidate; 50 track-churn flags; 10.1 boxes/frame, 19% small-tercile",
+      "split": "val"
+    }
+  ]
+}
