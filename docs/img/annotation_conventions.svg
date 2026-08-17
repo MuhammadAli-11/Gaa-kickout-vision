@@ -1,0 +1,180 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="700" viewBox="0 0 1000 700" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" role="img" aria-label="Box annotation conventions: a correct tight box versus four common errors, with annotation rules">
+<title>Box annotation conventions</title>
+<desc>Left panel shows a correct box: tight to the visible extent, including raised arms and trailing leg, excluding the shadow. Right panel shows four errors: loose box, box clipped at the knees, shadow included, and two players merged into one box. A rules strip lists annotation conventions.</desc>
+
+<style>
+  .card   { fill: #f6f8fa; }
+  .panel  { fill: #fbfcfd; stroke: #d0d7de; }
+  .strip  { fill: #eef1f5; stroke: #d0d7de; }
+  .h1     { fill: #1f2328; }
+  .txt    { fill: #1f2328; }
+  .muted  { fill: #59636e; }
+  .ok     { fill: #1a7f37; }
+  .okS    { stroke: #1a7f37; }
+  .bad    { fill: #cf222e; }
+  .badS   { stroke: #cf222e; }
+  .fig    { fill: #57606a; stroke: #57606a; }
+  .shadow { fill: #8c959f; }
+  .lead   { stroke: #8c959f; }
+  .prio   { fill: #fff8c5; stroke: #d4a72c; }
+  .prioT  { fill: #6f5500; }
+  @media (prefers-color-scheme: dark) {
+    .card   { fill: #0d1117; }
+    .panel  { fill: #161b22; stroke: #30363d; }
+    .strip  { fill: #12181f; stroke: #30363d; }
+    .h1     { fill: #e6edf3; }
+    .txt    { fill: #e6edf3; }
+    .muted  { fill: #9198a1; }
+    .ok     { fill: #3fb950; }
+    .okS    { stroke: #3fb950; }
+    .bad    { fill: #f85149; }
+    .badS   { stroke: #f85149; }
+    .fig    { fill: #7d8590; stroke: #7d8590; }
+    .shadow { fill: #6e7681; }
+    .lead   { stroke: #6e7681; }
+    .prio   { fill: #2d2611; stroke: #9e6a03; }
+    .prioT  { fill: #e3b341; }
+  }
+</style>
+
+<rect class="card" width="1000" height="700" fill="#f6f8fa"/>
+
+<!-- ================= header ================= -->
+<text class="h1" x="24" y="34" font-size="18" font-weight="600" fill="#1f2328">Box annotation conventions</text>
+<text class="muted" x="24" y="53" font-size="11" fill="#59636e">Reference card for CVAT — see section E of the annotation guide</text>
+
+<rect class="okS" x="700" y="24" width="14" height="14" rx="2" fill="none" stroke="#1a7f37" stroke-width="2"/>
+<text class="txt" x="722" y="35" font-size="12" fill="#1f2328">Correct box</text>
+<rect class="badS" x="820" y="24" width="14" height="14" rx="2" fill="none" stroke="#cf222e" stroke-width="2" stroke-dasharray="4 3"/>
+<text class="txt" x="842" y="35" font-size="12" fill="#1f2328">Incorrect box</text>
+
+<!-- ================= LEFT PANEL — correct ================= -->
+<rect class="panel" x="24" y="70" width="352" height="360" rx="6" fill="#fbfcfd" stroke="#d0d7de"/>
+<text class="ok" x="44" y="98" font-size="14" font-weight="600" fill="#1a7f37">Correct</text>
+<text class="muted" x="44" y="116" font-size="11" fill="#59636e">Tight to the visible extent</text>
+
+<!-- shadow (excluded from box) -->
+<ellipse class="shadow" cx="196" cy="376" rx="46" ry="9" fill="#8c959f" opacity="0.45"/>
+
+<!-- player: arms raised in a catch, trailing leg -->
+<g class="fig" fill="#57606a" stroke="#57606a" stroke-linecap="round" stroke-linejoin="round">
+  <polyline points="162,140 180,168 200,206 220,168 238,140" fill="none" stroke-width="11"/>
+  <circle cx="162" cy="140" r="7" stroke="none"/>
+  <circle cx="238" cy="140" r="7" stroke="none"/>
+  <circle cx="200" cy="188" r="15" stroke="none"/>
+  <line x1="200" y1="203" x2="200" y2="282" stroke-width="15"/>
+  <polyline points="200,282 186,326 182,354" fill="none" stroke-width="11"/>
+  <polyline points="200,282 224,320 234,346" fill="none" stroke-width="11"/>
+  <ellipse cx="180" cy="357" rx="9" ry="4" stroke="none"/>
+  <ellipse cx="236" cy="349" rx="9" ry="4" stroke="none"/>
+</g>
+
+<!-- correct box: tight, includes hands + feet, excludes shadow -->
+<rect class="okS" x="153" y="131" width="94" height="232" fill="none" stroke="#1a7f37" stroke-width="2.5"/>
+
+<!-- annotations -->
+<line class="lead" x1="125" y1="146" x2="151" y2="140" stroke="#8c959f" stroke-width="1"/>
+<text class="muted" x="44" y="142" font-size="11" fill="#59636e">Arms and hands</text>
+<text class="muted" x="44" y="156" font-size="11" fill="#59636e">are inside</text>
+
+<line class="lead" x1="254" y1="206" x2="248" y2="206" stroke="#8c959f" stroke-width="1"/>
+<text class="muted" x="258" y="210" font-size="11" fill="#59636e">No padding</text>
+
+<line class="lead" x1="254" y1="316" x2="240" y2="320" stroke="#8c959f" stroke-width="1"/>
+<text class="muted" x="258" y="320" font-size="11" fill="#59636e">Trailing leg</text>
+
+<line class="lead" x1="131" y1="376" x2="148" y2="376" stroke="#8c959f" stroke-width="1"/>
+<text class="muted" x="44" y="380" font-size="11" fill="#59636e">Shadow excluded</text>
+
+<!-- ================= RIGHT PANEL — errors ================= -->
+<rect class="panel" x="392" y="70" width="584" height="360" rx="6" fill="#fbfcfd" stroke="#d0d7de"/>
+<text class="bad" x="412" y="98" font-size="14" font-weight="600" fill="#cf222e">Common errors</text>
+
+<!-- error 1: loose box -->
+<g class="fig" fill="#57606a" stroke="#57606a" stroke-linecap="round" stroke-linejoin="round">
+  <circle cx="446" cy="142" r="9" stroke="none"/>
+  <line x1="446" y1="151" x2="446" y2="194" stroke-width="9"/>
+  <polyline points="430,184 446,158 462,184" fill="none" stroke-width="7"/>
+  <polyline points="446,194 435,228" fill="none" stroke-width="7"/>
+  <polyline points="446,194 457,228" fill="none" stroke-width="7"/>
+</g>
+<rect class="badS" x="418" y="121" width="56" height="124" fill="none" stroke="#cf222e" stroke-width="2" stroke-dasharray="4 3"/>
+<text class="bad" x="492" y="142" font-size="12" font-weight="600" fill="#cf222e">Loose box</text>
+<text class="muted" x="492" y="160" font-size="11" fill="#59636e">Padding around the player. It</text>
+<text class="muted" x="492" y="175" font-size="11" fill="#59636e">teaches a fuzzy boundary and</text>
+<text class="muted" x="492" y="190" font-size="11" fill="#59636e">shifts the foot point, breaking</text>
+<text class="muted" x="492" y="205" font-size="11" fill="#59636e">pitch projection.</text>
+
+<!-- error 2: clipped at the knees -->
+<g class="fig" fill="#57606a" stroke="#57606a" stroke-linecap="round" stroke-linejoin="round">
+  <circle cx="730" cy="142" r="9" stroke="none"/>
+  <line x1="730" y1="151" x2="730" y2="194" stroke-width="9"/>
+  <polyline points="714,184 730,158 746,184" fill="none" stroke-width="7"/>
+  <polyline points="730,194 719,228" fill="none" stroke-width="7"/>
+  <polyline points="730,194 741,228" fill="none" stroke-width="7"/>
+</g>
+<rect class="badS" x="713" y="132" width="34" height="79" fill="none" stroke="#cf222e" stroke-width="2" stroke-dasharray="4 3"/>
+<text class="bad" x="776" y="142" font-size="12" font-weight="600" fill="#cf222e">Clipped at the knees</text>
+<text class="muted" x="776" y="160" font-size="11" fill="#59636e">Feet cut off. The foot point is</text>
+<text class="muted" x="776" y="175" font-size="11" fill="#59636e">the ground contact used for</text>
+<text class="muted" x="776" y="190" font-size="11" fill="#59636e">the homography, so this ruins</text>
+<text class="muted" x="776" y="205" font-size="11" fill="#59636e">every metre measurement.</text>
+
+<!-- error 3: shadow included -->
+<ellipse class="shadow" cx="446" cy="398" rx="16" ry="6" fill="#8c959f" opacity="0.45"/>
+<g class="fig" fill="#57606a" stroke="#57606a" stroke-linecap="round" stroke-linejoin="round">
+  <circle cx="446" cy="302" r="9" stroke="none"/>
+  <line x1="446" y1="311" x2="446" y2="354" stroke-width="9"/>
+  <polyline points="430,344 446,318 462,344" fill="none" stroke-width="7"/>
+  <polyline points="446,354 435,388" fill="none" stroke-width="7"/>
+  <polyline points="446,354 457,388" fill="none" stroke-width="7"/>
+</g>
+<rect class="badS" x="429" y="292" width="34" height="115" fill="none" stroke="#cf222e" stroke-width="2" stroke-dasharray="4 3"/>
+<text class="bad" x="492" y="302" font-size="12" font-weight="600" fill="#cf222e">Shadow included</text>
+<text class="muted" x="492" y="320" font-size="11" fill="#59636e">Box extends below the feet</text>
+<text class="muted" x="492" y="335" font-size="11" fill="#59636e">onto grass.</text>
+
+<!-- error 4: two players merged -->
+<g class="fig" fill="#57606a" stroke="#57606a" stroke-linecap="round" stroke-linejoin="round">
+  <circle cx="715" cy="302" r="8" stroke="none"/>
+  <line x1="715" y1="310" x2="715" y2="352" stroke-width="8"/>
+  <polyline points="704,342 715,318 726,342" fill="none" stroke-width="6"/>
+  <polyline points="715,352 707,386" fill="none" stroke-width="6"/>
+  <polyline points="715,352 723,386" fill="none" stroke-width="6"/>
+
+  <circle cx="745" cy="296" r="8" stroke="none"/>
+  <line x1="745" y1="304" x2="745" y2="346" stroke-width="8"/>
+  <polyline points="734,320 745,300 756,322" fill="none" stroke-width="6"/>
+  <polyline points="745,346 737,384" fill="none" stroke-width="6"/>
+  <polyline points="745,346 753,384" fill="none" stroke-width="6"/>
+</g>
+<rect class="badS" x="698" y="286" width="64" height="106" fill="none" stroke="#cf222e" stroke-width="2" stroke-dasharray="4 3"/>
+<text class="bad" x="776" y="302" font-size="12" font-weight="600" fill="#cf222e">Two players merged into one</text>
+<text class="muted" x="776" y="320" font-size="11" fill="#59636e">The aerial-contest case, which</text>
+<text class="muted" x="776" y="335" font-size="11" fill="#59636e">is exactly where the boxes</text>
+<text class="muted" x="776" y="350" font-size="11" fill="#59636e">need to be right.</text>
+
+<!-- ================= RULES STRIP ================= -->
+<rect class="strip" x="24" y="444" width="952" height="232" rx="6" fill="#eef1f5" stroke="#d0d7de"/>
+<text class="h1" x="44" y="472" font-size="13" font-weight="600" fill="#1f2328">Rules</text>
+
+<circle class="muted" cx="48" cy="494" r="2.5" fill="#59636e"/>
+<text class="txt" x="60" y="498" font-size="12" fill="#1f2328">Box every person on the field, including officials — use the class column to separate them, never skip them</text>
+
+<circle class="muted" cx="48" cy="520" r="2.5" fill="#59636e"/>
+<text class="txt" x="60" y="524" font-size="12" fill="#1f2328">Occluded: box the visible extent only, and set the visibility fraction</text>
+
+<circle class="muted" cx="48" cy="546" r="2.5" fill="#59636e"/>
+<text class="txt" x="60" y="550" font-size="12" fill="#1f2328">Truncated at the frame edge: box the visible part</text>
+
+<circle class="muted" cx="48" cy="572" r="2.5" fill="#59636e"/>
+<text class="txt" x="60" y="576" font-size="12" fill="#1f2328">Never box crowd, bench, or camera operators</text>
+
+<circle class="muted" cx="48" cy="598" r="2.5" fill="#59636e"/>
+<text class="txt" x="60" y="602" font-size="12" fill="#1f2328">Track IDs persist through occlusion</text>
+
+<rect class="prio" x="40" y="616" width="920" height="46" rx="4" fill="#fff8c5" stroke="#d4a72c"/>
+<text class="prioT" x="58" y="636" font-size="12" font-weight="600" fill="#6f5500">Priority: distant far-side players. They are small and tedious, and they are the entire reason for</text>
+<text class="prioT" x="58" y="653" font-size="12" fill="#6f5500">annotating — recall collapses in the small bbox-area tercile.</text>
+
+</svg>

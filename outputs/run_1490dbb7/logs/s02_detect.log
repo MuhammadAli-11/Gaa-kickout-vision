@@ -1,0 +1,1 @@
+14:38:46 | s02_detect             | INFO    | detector=yolov8m.pt imgsz=1280 conf=0.25 device=auto

@@ -1,0 +1,8 @@
+{
+  "carried_forward_from": "run_5c0eb835",
+  "into": "run_15c9adbd",
+  "reason": "features.velocity_window_frames 3->8 and features.repeat_frame added; both are in the run_id hash subset. s02/s03 read only cfg[detect]/cfg[track] and are unaffected.",
+  "caveat": "provenance_s02/s03.json still record their original run_id. Correct: that is the config they ran under.",
+  "chain": "run_4c9cad33 -> run_5c0eb835 -> run_15c9adbd",
+  "noted_utc": "2026-08-16T08:00:26+00:00"
+}

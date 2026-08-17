@@ -94,6 +94,81 @@ features_image:
     max_vertical_velocity:  {type: float32, units: px/s}
     scene_change_flag:      {type: int8,    enum: [0, 1]}
     valid_frame:            {type: int8,    enum: [0, 1]}
+    is_repeat_frame:        {type: int8,    enum: [0, 1], desc: "near-identical to the previous frame. Upstream frame-rate conversion in the broadcast, NOT slow motion: measured at 19% in the raw 28 fps source and 15% in the 25 fps clip, so s01 reduced it rather than caused it."}
+
+segment_map:
+  produced_by: tools/extract_segments.py
+  format: csv
+  path: data/gt/{source_id}_segment_map.csv
+  primary_key: [video_id]
+  # The offset table. Every segment's clock starts at zero, so recovering
+  # compilation time is source_s = source_start_s + local_s. Getting this
+  # wrong shifts every temporal metric silently, which is exactly why it is
+  # written down as data rather than left implicit in a filename.
+  columns:
+    segment_id:      {type: int64}
+    video_id:        {type: string}
+    source_id:       {type: string}
+    source_start_s:  {type: float64, units: s, desc: "add to segment-local time"}
+    source_end_s:    {type: float64, units: s}
+    duration_s:      {type: float64, units: s}
+    n_frames:        {type: int64}
+    fps:             {type: int64}
+    width:           {type: int64}
+    height:          {type: int64}
+    n_kickouts:      {type: int64}
+    merged_windows:  {type: int64, desc: "how many padded windows fused into this segment"}
+    src_width:       {type: int64, desc: "before any rescale — upscaling adds no information"}
+    src_height:      {type: int64}
+
+annotation_blocks:
+  produced_by: tools/sample_frames_for_annotation.py --mode blocks
+  format: csv
+  path: data/gt/{video_id}/annotation_blocks/blocks.csv
+  primary_key: [block_id]
+  # WHICH 60 s passages were sent for annotation, and why each was chosen.
+  # This is the experiment design, not a by-product: the blocks determine what
+  # the detector can be shown to do and what it cannot, so the selection
+  # criteria are stored as data rather than left in a log line.
+  columns:
+    block_id:            {type: string}
+    t_start_s:           {type: float64, units: s}
+    t_end_s:             {type: float64, units: s}
+    split:               {type: string, enum: [train, val],
+                          desc: "split unit is the BLOCK. Never split by frame: adjacent
+                                 frames are near-duplicates and a frame split leaks val
+                                 into train"}
+    n_kickouts:          {type: int64}
+    kickout_times:       {type: string, desc: "semicolon-separated t_peak_s_approx, ROUGH"}
+    excl_overlap_s:      {type: float64, units: s,
+                          desc: "seconds of overlap with excluded_intervals.csv. Must be 0
+                                 when annotation.blocks.forbid_exclusion_overlap is set"}
+    churn_flags:         {type: int64,
+                          desc: "count of features.scene_change_flag. An UNVALIDATED
+                                 track-churn proxy, NOT a camera-cut count"}
+    n_frames_with_boxes: {type: int64}
+    mean_boxes_per_frame: {type: float64}
+    mean_small_frac:     {type: float64, desc: "fraction of boxes in the small area tercile"}
+    reason:              {type: string, desc: "human-readable selection rationale"}
+
+annotation_keyframes:
+  produced_by: tools/sample_frames_for_annotation.py --mode blocks
+  format: csv
+  path: data/gt/{video_id}/annotation_blocks/manifest.csv
+  primary_key: [frame_idx]
+  # One row per frame a human draws boxes on. The frames BETWEEN these are
+  # interpolated in CVAT and are not listed, so this table is the annotation
+  # budget: len(this) * boxes_per_frame is the work.
+  columns:
+    block_id:    {type: string}
+    split:       {type: string, enum: [train, val]}
+    frame_idx:   {type: int64, desc: "absolute frame index in the working clip"}
+    t_s:         {type: float64, units: s}
+    n_boxes:     {type: int64, desc: "DETECTED boxes — an estimate of the work, not truth"}
+    small_frac:  {type: float64}
+    is_keyframe: {type: int64, enum: [1],
+                  desc: "always 1. Present so an exported table that later mixes
+                         interpolated rows in stays unambiguous"}
 
 features:
   produced_by: s05_features.py
@@ -118,6 +193,7 @@ features:
     max_vertical_velocity:  {type: float32, units: px/s}
     scene_change_flag:      {type: int8,    enum: [0, 1]}
     valid_frame:            {type: int8,    enum: [0, 1]}
+    is_repeat_frame:        {type: int8,    enum: [0, 1], desc: "see features_image"}
     feature_space:          {type: string,  enum: [pixel, pitch]}
 
 pitch_keypoints:

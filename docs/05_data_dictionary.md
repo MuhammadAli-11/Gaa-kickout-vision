@@ -61,7 +61,53 @@ hidden.
 One row per frame, in pixels. Drives shot segmentation and Tier 2
 temporal detection. Columns: `n_tracks`, `cluster_density_px`,
 `centroid_spread_px`, bbox heights, `mean/max_vertical_velocity`,
-`scene_change_flag`, `valid_frame`.
+`scene_change_flag`, `valid_frame`, `is_repeat_frame`.
+
+#### `is_repeat_frame` and the velocity limitation — read before quoting any velocity
+
+**The source broadcast is frame-rate converted upstream.** About 15% of
+frames in the 25 fps working clip are near-identical to the frame before
+them, periodically, roughly every 4–5 frames.
+
+This was confirmed, not assumed. The identical inter-frame scan was run
+on the **raw 28 fps source before any `s01` processing**, over w1's exact
+range: 19.1% of raw frames are near-identical (threshold 0.0005), modal
+gap 4 raw frames, uniform across all twelve 60 s blocks. The clip's rate
+is *lower* than the source's, so `s01`'s 28→25 resample diluted the
+pattern rather than causing it. Distinct content is roughly 22–24 fps
+inside a 28 fps container.
+
+They are near-identical rather than bit-identical because the source is
+lossily compressed: only ~1% are exact at full resolution, while the rest
+show 50–3400× less inter-frame change than their neighbours. Detection
+therefore thresholds a mean absolute difference (`features.repeat_frame`)
+rather than testing equality. It is done on **pixels, not tracks** —
+track-based detection was tried and rejected, because YOLO box
+coordinates jitter ~1.4 px even on a repeat against ~4.9 px on a normal
+frame, giving at best precision 0.40 at recall 0.43.
+
+**Consequence for velocity.** `mean/max_vertical_velocity` differences
+`cy` over `features.velocity_window_frames`. When that window is shorter
+than the repeat period, the value depends on which phase of the repeat
+cycle it lands in. Measured on `lgf26_final_w1`:
+
+| | η² (phase) | phase spread |
+|---|---|---|
+| w=3, repeats kept (old default) | 0.00071 | 7.39 px/s |
+| w=8, repeats dropped (current) | 0.00010 | 1.78 px/s |
+
+Before the fix, per-phase mean velocity drifted monotonically from +0.06
+to −7.33 px/s — a systematic bias, not noise. The window must stay above
+the repeat period; the fix widens it and measures displacement over the
+true elapsed frame count rather than an assumed one.
+
+**What this does not fix.** No resample setting recovers motion the
+broadcast never sampled. Velocity is now phase-*independent*, not
+correct in an absolute sense: it is averaged over a window three times
+wider than before, so peak magnitudes are roughly halved. Downstream this
+is safe because `s07`'s rule thresholds on a percentile of the column
+itself and is scale-invariant, but any absolute velocity figure quoted
+from an earlier run is not comparable to a current one.
 
 ### `pitch_keypoints.csv` — human, via `s04 --annotate`
 `shot_id`, `landmark`, `img_x/img_y` (px), `pitch_x/pitch_y` (m),

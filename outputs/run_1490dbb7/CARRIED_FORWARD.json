@@ -1,0 +1,8 @@
+﻿{
+    "chain":  "run_4c9cad33 -\u003e run_5c0eb835 -\u003e run_15c9adbd -\u003e run_1490dbb7",
+    "noted_utc":  "2026-08-16T09:50:42Z",
+    "into":  "run_1490dbb7",
+    "reason":  "events.rule.terms dropped the leap term and events.rule.peak_from was added. Both live under cfg[events], which is in the run_id hash subset, but NO stage before s07 reads cfg[events] - s02/s03 read detect/track, s05 reads features. The upstream artefacts are therefore bit-identical and are copied rather than recomputed.",
+    "caveat":  "provenance_s02/s03/s05.json still record run_15c9adbd. Correct: that is the config they ran under.",
+    "carried_forward_from":  "run_15c9adbd"
+}

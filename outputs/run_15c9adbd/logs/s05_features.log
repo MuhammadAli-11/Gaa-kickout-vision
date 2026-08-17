@@ -1,0 +1,9 @@
+19:02:43 | s05_features           | INFO    | image features: 18000 frames | valid 67% | cuts 1702
+19:02:43 | s05_features           | INFO    | stopping before pitch space. Next: s04_register_pitch.py --list-shots
+19:33:19 | s05_features           | INFO    | image features: 18000 frames | valid 67% | cuts 644
+19:33:19 | s05_features           | INFO    | features.parquet written in PIXEL space (feature_space=pixel). The paper's variables are defined in metres — this is enough to detect candidate events, not to code them.
+19:33:19 | s05_features           | INFO    | stopping before pitch space. Next: s04_register_pitch.py --list-shots
+13:05:34 | s05_features           | INFO    | repeat frames: 2763 / 18000 (15.35%) — upstream frame-rate conversion in the broadcast, not slow motion
+13:05:37 | s05_features           | INFO    | image features: 18000 frames | valid 67% | cuts 644
+13:05:37 | s05_features           | INFO    | features.parquet written in PIXEL space (feature_space=pixel). The paper's variables are defined in metres — this is enough to detect candidate events, not to code them.
+13:05:37 | s05_features           | INFO    | stopping before pitch space. Next: s04_register_pitch.py --list-shots

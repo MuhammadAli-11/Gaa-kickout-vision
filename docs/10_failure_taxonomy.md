@@ -4,6 +4,15 @@ The categories are fixed **before** the audit so that classification is
 coding rather than storytelling. Every FP and FN gets exactly one primary
 cause and optionally one secondary.
 
+**Amendment log.** Categories may be added only while the audit has not yet
+started; once a case has been classified, the list is frozen. Each addition
+records its date and the evidence that motivated it, so a reader can check
+it was not reverse-engineered from the errors it explains.
+
+| Date | Category | Motivated by |
+|---|---|---|
+| 2026-08-16 | `framing_scale` | Pre-audit hypothesis test on `max_vertical_velocity` |
+
 ---
 
 ## The categories
@@ -40,6 +49,61 @@ tercile; missed players concentrate in the upper third of the frame.
 *Why it is structural:* a GAA pitch is 130–145 m long and 80–90 m wide,
 larger than a soccer pitch. At 720p a far-side player may be 15–25 px
 tall. This is a sensor-resolution limit, not a model limit.
+
+### 3b. `framing_scale`
+The director changes the *focal length* between contest and open play, so
+apparent player size — and every pixel-space quantity derived from it —
+changes with the event rather than with the play.
+
+*Signature:* mean bbox height differs systematically between contest and
+open-play windows; any pixel-velocity or pixel-distance feature moves in
+the opposite direction to the physical quantity it is meant to measure.
+
+*Measured on `lgf26_final_w1`, 2026-08-16:* the broadcast frames a kickout
+**wide** (mean bbox height 110.7 px, 12.8 tracks/frame) and open play
+**tight** (254.4 px, 10.5 tracks/frame) — apparent size ratio **0.435**.
+Because pixel velocity scales with apparent size, `max_vertical_velocity`
+is *lower* at contests than in open play (ratio 0.694 at ±2 s). Real
+contest motion partially compensates — a pure-scale prediction would give
+0.435 — but nowhere near enough to reach 1. Neither restricting to the
+tallest tracks (0.652) nor subtracting the frame-median camera common-mode
+(0.675) lifts it above 1.
+
+*Scope:* this is a **between-window** effect, not a within-window one.
+Apparent size varies 4.4× more across 3 s windows (CV 0.662) than inside
+one (CV 0.150), so comparing feature *magnitudes* across windows is
+confounded while locating a peak inside a single window is not.
+
+*Why it is structural:* focal length is a directorial choice serving the
+viewer, and no amount of training data changes what the lens did. The fix
+is not a better model but a different measurement space — velocity in m/s
+via the `s04` homography, which divides the scale out. That fix is
+unproven here and carries its own risk: ~2 m hold-out reprojection error
+on an airborne player's foot point may exceed the signal.
+
+> **Provenance of this category.** Added **2026-08-16**, *before* any
+> failure audit was run and before any box annotation existed. It came
+> from hypothesis-testing a feature against rough event timestamps — the
+> prediction "velocity should be higher at contests" was made first and
+> failed — not from inspecting observed errors and reaching for an
+> explanation. Recording that distinction matters: a category invented
+> after seeing the errors it explains is unfalsifiable, and this one is
+> not. The four-term detector was corrected as a direct consequence
+> (`events.rule.terms`); see the before/after in docs/09.
+
+This is the **third independent instance** of the same underlying claim,
+arrived at by three unrelated routes:
+
+| Finding | Route | What the broadcast optimises |
+|---|---|---|
+| `camera_pan_cut` | track fragmentation at cuts | continuity of viewing, not of identity |
+| frame-repeat (docs/05) | pixel-difference scan of the raw source | delivery bitrate, not temporal fidelity |
+| `framing_scale` | feature-direction hypothesis test | drama and legibility, not metric constancy |
+
+Broadcast footage is optimised for viewing, not for analysis. That
+sentence is cheap to assert and expensive to demonstrate; these three
+measurements are the demonstration, and they were obtained independently
+rather than by restating one result three ways.
 
 ### 4. `no_ball_ambiguity`
 Without ball tracking, the contest is inferred from player behaviour, so
@@ -124,6 +188,7 @@ report. Expected shape (illustrative only — do not pre-fill):
 | aerial_occlusion | | | |
 | camera_pan_cut | | | |
 | scale_distance | | | |
+| framing_scale | | | |
 | no_ball_ambiguity | | | |
 | registration_failure | | | |
 | team_assignment_failure | | | |
@@ -145,6 +210,7 @@ argument rather than a list:
 | aerial_occlusion | Multiple synchronised viewpoints |
 | camera_pan_cut | **Fixed** rigs, not broadcast feeds — precisely the platform the source paper's conclusion calls for |
 | scale_distance | Higher resolution, or multiple cameras covering pitch zones |
+| framing_scale | **Fixed focal length**, or all features computed in pitch metres rather than pixels. A fixed rig solves this and `camera_pan_cut` with one change |
 | no_ball_ambiguity | Ball tracking, or event context from a data feed |
 | registration_failure | Fixed cameras with a one-off calibration, instead of per-shot re-registration |
 | team_assignment_failure | Higher resolution; or a team roster and kit reference per fixture held in the platform's metadata |

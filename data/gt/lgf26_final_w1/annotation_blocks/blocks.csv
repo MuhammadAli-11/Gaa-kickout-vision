@@ -1,0 +1,3 @@
+block_id,t_start_s,t_end_s,split,n_kickouts,kickout_times,excl_overlap_s,churn_flags,n_frames_with_boxes,mean_boxes_per_frame,mean_small_frac,reason
+blk_01,420.0,480.0,train,2,440.0;457.0,0.0,107,1464,11.07,0.131,"2 kickout(s) at 440.0;457.0s; no overlap with a replay/slow-motion candidate; 107 track-churn flags; 11.1 boxes/frame, 13% small-tercile"
+blk_02,600.0,660.0,val,1,626.0,0.0,50,1484,10.13,0.189,"1 kickout(s) at 626.0s; no overlap with a replay/slow-motion candidate; 50 track-churn flags; 10.1 boxes/frame, 19% small-tercile"

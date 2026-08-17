@@ -1,0 +1,4 @@
+event_id,source_timestamp,source_s,t_peak_s_approx,t_start_s,t_end_s,t_peak_s,n_players_in_contest,outcome,restart_type,coder_id,coding_pass,visibility,notes
+ko_001,9:54,594.0,10.0,,,,,,,,1,,
+ko_002,10:23,623.0,39.0,,,,,,,,1,,
+ko_003,10:57,657.0,73.0,,,,,,,,1,,

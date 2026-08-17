@@ -1,0 +1,131 @@
+19:51:39 | s06_eval_det           | INFO    |   blk_01: 2105 boxes, 246 frames, frame numbering 0-based absolute
+19:51:39 | s06_eval_det           | INFO    |   blk_02: 2279 boxes, 300 frames, frame numbering 0-based absolute
+19:51:39 | s06_eval_det           | WARNING | 424 of 4384 GT rows (10%) have id=-1 (CVAT SHAPES, not tracks). They are kept for DETECTION metrics and excluded from TRACKING metrics, which need an identity to score.
+19:51:40 | s06_eval_det           | INFO    | annotated subset: 546 frames, 4384 GT boxes, 6056 predictions
+19:51:40 | s06_eval_det           | INFO    | box aspect (h/w): GT median 1.63 vs detector median 2.16
+19:51:40 | s06_eval_det           | INFO    | size terciles by GT bbox area: small<3672 px2, medium<5141 px2
+19:51:40 | s06_eval_det           | INFO    |   small  n= 1460  bbox height median  62.8 px (p10 50, p90 84)
+19:51:40 | s06_eval_det           | INFO    |   medium n= 1464  bbox height median  82.6 px (p10 70, p90 98)
+19:51:40 | s06_eval_det           | INFO    |   large  n= 1460  bbox height median 106.2 px (p10 88, p90 413)
+19:51:48 | s06_eval_det           | INFO    | IoU sweep (recall): 0.3:0.473  0.4:0.306  0.5:0.185  0.6:0.110  0.7:0.070
+19:51:49 | s06_eval_det           | WARNING | tracking metrics unavailable (`np.asfarray` was removed in the NumPy 2.0 release. Use `np.asarray` with a proper dtype instead.) — report detection only and say so
+19:51:49 | s06_eval_det           | INFO    | P=precision = 0.134 [0.125, 0.143] (n=6056)
+19:51:49 | s06_eval_det           | INFO    | R=recall = 0.185 [0.174, 0.197] (n=4384)
+19:51:49 | s06_eval_det           | INFO    | F1=f1 = 0.155 [0.146, 0.165] (n=9630)
+19:51:49 | s06_eval_det           | INFO    | recall small=0.277 medium=0.137 large=0.140 — the drop is the finding
+19:52:26 | s06_eval_det           | INFO    |   blk_01: 2105 boxes, 246 frames, frame numbering 0-based absolute
+19:52:26 | s06_eval_det           | INFO    |   blk_02: 2279 boxes, 300 frames, frame numbering 0-based absolute
+19:52:26 | s06_eval_det           | WARNING | 424 of 4384 GT rows (10%) have id=-1 (CVAT SHAPES, not tracks). They are kept for DETECTION metrics and excluded from TRACKING metrics, which need an identity to score.
+19:52:27 | s06_eval_det           | INFO    | annotated subset: 546 frames, 4384 GT boxes, 6056 predictions
+19:52:27 | s06_eval_det           | INFO    | box aspect (h/w): GT median 1.63 vs detector median 2.16
+19:52:27 | s06_eval_det           | INFO    | size terciles by GT bbox area: small<3672 px2, medium<5141 px2
+19:52:27 | s06_eval_det           | INFO    |   small  n= 1460  bbox height median  62.8 px (p10 50, p90 84)
+19:52:27 | s06_eval_det           | INFO    |   medium n= 1464  bbox height median  82.6 px (p10 70, p90 98)
+19:52:27 | s06_eval_det           | INFO    |   large  n= 1460  bbox height median 106.2 px (p10 88, p90 413)
+19:52:37 | s06_eval_det           | INFO    | IoU sweep (recall): 0.3:0.473  0.4:0.306  0.5:0.185  0.6:0.110  0.7:0.070
+19:52:43 | s06_eval_det           | WARNING | tracking metrics unavailable (could not convert string to float: np.str_('blk_01_1')) — report detection only and say so
+19:52:43 | s06_eval_det           | INFO    | P=precision = 0.134 [0.125, 0.143] (n=6056)
+19:52:43 | s06_eval_det           | INFO    | R=recall = 0.185 [0.174, 0.197] (n=4384)
+19:52:43 | s06_eval_det           | INFO    | F1=f1 = 0.155 [0.146, 0.165] (n=9630)
+19:52:43 | s06_eval_det           | INFO    | recall small=0.277 medium=0.137 large=0.140 — the drop is the finding
+19:53:13 | s06_eval_det           | INFO    |   blk_01: 2105 boxes, 246 frames, frame numbering 0-based absolute
+19:53:13 | s06_eval_det           | INFO    |   blk_02: 2279 boxes, 300 frames, frame numbering 0-based absolute
+19:53:13 | s06_eval_det           | WARNING | 424 of 4384 GT rows (10%) have id=-1 (CVAT SHAPES, not tracks). They are kept for DETECTION metrics and excluded from TRACKING metrics, which need an identity to score.
+19:53:13 | s06_eval_det           | INFO    | annotated subset: 546 frames, 4384 GT boxes, 6056 predictions
+19:53:13 | s06_eval_det           | INFO    | box aspect (h/w): GT median 1.63 vs detector median 2.16
+19:53:13 | s06_eval_det           | INFO    | size terciles by GT bbox area: small<3672 px2, medium<5141 px2
+19:53:13 | s06_eval_det           | INFO    |   small  n= 1460  bbox height median  62.8 px (p10 50, p90 84)
+19:53:13 | s06_eval_det           | INFO    |   medium n= 1464  bbox height median  82.6 px (p10 70, p90 98)
+19:53:13 | s06_eval_det           | INFO    |   large  n= 1460  bbox height median 106.2 px (p10 88, p90 413)
+19:53:21 | s06_eval_det           | INFO    | IoU sweep (recall): 0.3:0.473  0.4:0.306  0.5:0.185  0.6:0.110  0.7:0.070
+19:53:23 | s06_eval_det           | INFO    |   blk_01   MOTA= -0.380 IDF1=0.300 IDsw=  46 frag=  83 MT=15 ML=27 objs=80
+19:53:23 | s06_eval_det           | INFO    |   blk_02   MOTA= -0.945 IDF1=0.030 IDsw=  27 frag=  52 MT=0 ML=16 objs=19
+19:53:23 | s06_eval_det           | INFO    |   OVERALL  MOTA= -0.705 IDF1=0.147 IDsw=  73 frag= 135 MT=15 ML=43 objs=99
+19:53:23 | s06_eval_det           | WARNING | tracking metrics unavailable (name 'fps' is not defined) — report detection only and say so
+19:53:23 | s06_eval_det           | INFO    | P=precision = 0.134 [0.125, 0.143] (n=6056)
+19:53:23 | s06_eval_det           | INFO    | R=recall = 0.185 [0.174, 0.197] (n=4384)
+19:53:23 | s06_eval_det           | INFO    | F1=f1 = 0.155 [0.146, 0.165] (n=9630)
+19:53:23 | s06_eval_det           | INFO    | recall small=0.277 medium=0.137 large=0.140 — the drop is the finding
+19:53:48 | s06_eval_det           | INFO    |   blk_01: 2105 boxes, 246 frames, frame numbering 0-based absolute
+19:53:48 | s06_eval_det           | INFO    |   blk_02: 2279 boxes, 300 frames, frame numbering 0-based absolute
+19:53:48 | s06_eval_det           | WARNING | 424 of 4384 GT rows (10%) have id=-1 (CVAT SHAPES, not tracks). They are kept for DETECTION metrics and excluded from TRACKING metrics, which need an identity to score.
+19:53:48 | s06_eval_det           | INFO    | annotated subset: 546 frames, 4384 GT boxes, 6056 predictions
+19:53:48 | s06_eval_det           | INFO    | box aspect (h/w): GT median 1.63 vs detector median 2.16
+19:53:48 | s06_eval_det           | INFO    | size terciles by GT bbox area: small<3672 px2, medium<5141 px2
+19:53:48 | s06_eval_det           | INFO    |   small  n= 1460  bbox height median  62.8 px (p10 50, p90 84)
+19:53:48 | s06_eval_det           | INFO    |   medium n= 1464  bbox height median  82.6 px (p10 70, p90 98)
+19:53:48 | s06_eval_det           | INFO    |   large  n= 1460  bbox height median 106.2 px (p10 88, p90 413)
+19:53:57 | s06_eval_det           | INFO    | IoU sweep (recall): 0.3:0.473  0.4:0.306  0.5:0.185  0.6:0.110  0.7:0.070
+19:53:58 | s06_eval_det           | INFO    |   blk_01   MOTA= -0.380 IDF1=0.300 IDsw=  46 frag=  83 MT=15 ML=27 objs=80
+19:53:58 | s06_eval_det           | INFO    |   blk_02   MOTA= -0.945 IDF1=0.030 IDsw=  27 frag=  52 MT=0 ML=16 objs=19
+19:53:58 | s06_eval_det           | INFO    |   OVERALL  MOTA= -0.705 IDF1=0.147 IDsw=  73 frag= 135 MT=15 ML=43 objs=99
+19:53:58 | s06_eval_det           | INFO    |   ID switches at contests (+/-5s): 26 over 153 frames (0.170/frame) vs 47 over 393 elsewhere (0.120/frame)
+19:53:58 | s06_eval_det           | WARNING |   annotation.blocks.confirmed_cuts_s is empty — the switches-around-a-cut breakdown needs a HUMAN verdict on which candidate times are hard cuts. Not guessed here.
+19:53:58 | s06_eval_det           | INFO    |   blk_01: 80 GT identities vs 212 predicted (2.6x inflation)
+19:53:58 | s06_eval_det           | INFO    |   blk_02: 19 GT identities vs 281 predicted (14.8x inflation)
+19:53:58 | s06_eval_det           | INFO    | P=precision = 0.134 [0.125, 0.143] (n=6056)
+19:53:58 | s06_eval_det           | INFO    | R=recall = 0.185 [0.174, 0.197] (n=4384)
+19:53:58 | s06_eval_det           | INFO    | F1=f1 = 0.155 [0.146, 0.165] (n=9630)
+19:53:58 | s06_eval_det           | INFO    | recall small=0.277 medium=0.137 large=0.140 — the drop is the finding
+19:54:10 | s06_eval_det           | INFO    |   blk_01: 2105 boxes, 246 frames, frame numbering 0-based absolute
+19:54:10 | s06_eval_det           | INFO    |   blk_02: 2279 boxes, 300 frames, frame numbering 0-based absolute
+19:54:10 | s06_eval_det           | WARNING | 424 of 4384 GT rows (10%) have id=-1 (CVAT SHAPES, not tracks). They are kept for DETECTION metrics and excluded from TRACKING metrics, which need an identity to score.
+19:54:10 | s06_eval_det           | INFO    | annotated subset: 546 frames, 4384 GT boxes, 6056 predictions
+19:54:10 | s06_eval_det           | INFO    | box aspect (h/w): GT median 1.63 vs detector median 2.16
+19:54:10 | s06_eval_det           | INFO    | size terciles by GT bbox area: small<3672 px2, medium<5141 px2
+19:54:10 | s06_eval_det           | INFO    |   small  n= 1460  bbox height median  62.8 px (p10 50, p90 84)
+19:54:10 | s06_eval_det           | INFO    |   medium n= 1464  bbox height median  82.6 px (p10 70, p90 98)
+19:54:10 | s06_eval_det           | INFO    |   large  n= 1460  bbox height median 106.2 px (p10 88, p90 413)
+19:54:18 | s06_eval_det           | INFO    | IoU sweep (recall): 0.3:0.473  0.4:0.306  0.5:0.185  0.6:0.110  0.7:0.070
+19:54:20 | s06_eval_det           | INFO    |   blk_01   MOTA= -0.380 IDF1=0.300 IDsw=  46 frag=  83 MT=15 ML=27 objs=80
+19:54:20 | s06_eval_det           | INFO    |   blk_02   MOTA= -0.945 IDF1=0.030 IDsw=  27 frag=  52 MT=0 ML=16 objs=19
+19:54:20 | s06_eval_det           | INFO    |   OVERALL  MOTA= -0.705 IDF1=0.147 IDsw=  73 frag= 135 MT=15 ML=43 objs=99
+19:54:20 | s06_eval_det           | INFO    |   ID switches at contests (+/-5s): 26 over 153 frames (0.170/frame) vs 47 over 393 elsewhere (0.120/frame)
+19:54:20 | s06_eval_det           | WARNING |   annotation.blocks.confirmed_cuts_s is empty — the switches-around-a-cut breakdown needs a HUMAN verdict on which candidate times are hard cuts. Not guessed here.
+19:54:20 | s06_eval_det           | INFO    |   blk_01: 80 GT identities vs 212 predicted (2.6x inflation)
+19:54:20 | s06_eval_det           | INFO    |   blk_02: 19 GT identities vs 281 predicted (14.8x inflation)
+19:54:20 | s06_eval_det           | INFO    | P=precision = 0.134 [0.125, 0.143] (n=6056)
+19:54:20 | s06_eval_det           | INFO    | R=recall = 0.185 [0.174, 0.197] (n=4384)
+19:54:20 | s06_eval_det           | INFO    | F1=f1 = 0.155 [0.146, 0.165] (n=9630)
+19:54:20 | s06_eval_det           | INFO    | recall small=0.277 medium=0.137 large=0.140 — the drop is the finding
+12:24:47 | s06_eval_det           | INFO    |   blk_01: 3497 boxes, 300 frames, frame numbering 0-based absolute
+12:24:47 | s06_eval_det           | INFO    |   blk_02: 2279 boxes, 300 frames, frame numbering 0-based absolute
+12:24:47 | s06_eval_det           | INFO    | annotated subset: 600 frames, 5776 GT boxes, 6264 predictions
+12:24:47 | s06_eval_det           | INFO    | box aspect (h/w): GT median 1.69 vs detector median 2.14
+12:24:47 | s06_eval_det           | INFO    | size terciles by GT bbox area: small<2165 px2, medium<3299 px2
+12:24:47 | s06_eval_det           | INFO    |   small  n= 1924  bbox height median  56.4 px (p10 44, p90 66)
+12:24:47 | s06_eval_det           | INFO    |   medium n= 1928  bbox height median  69.6 px (p10 55, p90 78)
+12:24:47 | s06_eval_det           | INFO    |   large  n= 1924  bbox height median  89.0 px (p10 68, p90 402)
+12:24:58 | s06_eval_det           | INFO    | IoU sweep (recall): 0.3:0.463  0.4:0.394  0.5:0.294  0.6:0.163  0.7:0.064
+12:25:01 | s06_eval_det           | INFO    |   blk_01   MOTA= -0.172 IDF1=0.114 IDsw= 139 frag= 219 MT=0 ML=0 objs=14
+12:25:01 | s06_eval_det           | INFO    |   blk_02   MOTA= -0.578 IDF1=0.090 IDsw=  74 frag= 148 MT=3 ML=2 objs=19
+12:25:01 | s06_eval_det           | INFO    |   OVERALL  MOTA= -0.332 IDF1=0.103 IDsw= 213 frag= 367 MT=3 ML=2 objs=33
+12:25:01 | s06_eval_det           | INFO    |   ID switches at contests (+/-5s): 72 over 153 frames (0.471/frame) vs 141 over 447 elsewhere (0.315/frame)
+12:25:01 | s06_eval_det           | WARNING |   annotation.blocks.confirmed_cuts_s is empty — the switches-around-a-cut breakdown needs a HUMAN verdict on which candidate times are hard cuts. Not guessed here.
+12:25:01 | s06_eval_det           | INFO    |   blk_01: 14 GT identities vs 283 predicted (20.2x inflation)
+12:25:01 | s06_eval_det           | INFO    |   blk_02: 19 GT identities vs 281 predicted (14.8x inflation)
+12:25:01 | s06_eval_det           | INFO    | P=precision = 0.272 [0.261, 0.283] (n=6264)
+12:25:01 | s06_eval_det           | INFO    | R=recall = 0.294 [0.283, 0.306] (n=5776)
+12:25:01 | s06_eval_det           | INFO    | F1=f1 = 0.283 [0.271, 0.294] (n=10339)
+12:25:01 | s06_eval_det           | INFO    | recall small=0.317 medium=0.314 large=0.253 — the drop is the finding
+12:27:26 | s06_eval_det           | INFO    |   blk_01: 3497 boxes, 300 frames, frame numbering 0-based absolute
+12:27:26 | s06_eval_det           | INFO    |   blk_02: 2279 boxes, 300 frames, frame numbering 0-based absolute
+12:27:27 | s06_eval_det           | INFO    | annotated subset: 600 frames, 5776 GT boxes, 6264 predictions
+12:27:27 | s06_eval_det           | INFO    | box aspect (h/w): GT median 1.69 vs detector median 2.14
+12:27:27 | s06_eval_det           | INFO    | size terciles by GT bbox area: small<2165 px2, medium<3299 px2
+12:27:27 | s06_eval_det           | INFO    |   small  n= 1924  bbox height median  56.4 px (p10 44, p90 66)
+12:27:27 | s06_eval_det           | INFO    |   medium n= 1928  bbox height median  69.6 px (p10 55, p90 78)
+12:27:27 | s06_eval_det           | INFO    |   large  n= 1924  bbox height median  89.0 px (p10 68, p90 402)
+12:27:37 | s06_eval_det           | INFO    | IoU sweep (recall): 0.3:0.463  0.4:0.394  0.5:0.294  0.6:0.163  0.7:0.064
+12:27:40 | s06_eval_det           | INFO    |   blk_01   MOTA= -0.172 IDF1=0.114 IDsw= 139 frag= 219 MT=0 ML=0 objs=14
+12:27:40 | s06_eval_det           | INFO    |   blk_02   MOTA= -0.578 IDF1=0.090 IDsw=  74 frag= 148 MT=3 ML=2 objs=19
+12:27:40 | s06_eval_det           | INFO    |   OVERALL  MOTA= -0.332 IDF1=0.103 IDsw= 213 frag= 367 MT=3 ML=2 objs=33
+12:27:40 | s06_eval_det           | INFO    |   ID switches at contests (+/-5s): 72 over 153 frames (0.471/frame) vs 141 over 447 elsewhere (0.315/frame)
+12:27:40 | s06_eval_det           | INFO    |   annotation.blocks.confirmed_cuts_s is empty — no cut breakdown. This is a HUMAN verdict; it is never inferred from a threshold here.
+12:27:41 | s06_eval_det           | INFO    |   ID switches within +/-1s of a confirmed pan [652.5]: 0 over 10 frames (0.000/frame) vs 74 over 290 elsewhere in ['blk_02'] (0.255/frame) -> 0.00x
+12:27:41 | s06_eval_det           | INFO    |   blk_01: 14 GT identities vs 283 predicted (20.2x inflation)
+12:27:41 | s06_eval_det           | INFO    |   blk_02: 19 GT identities vs 281 predicted (14.8x inflation)
+12:27:41 | s06_eval_det           | INFO    | P=precision = 0.272 [0.261, 0.283] (n=6264)
+12:27:41 | s06_eval_det           | INFO    | R=recall = 0.294 [0.283, 0.306] (n=5776)
+12:27:41 | s06_eval_det           | INFO    | F1=f1 = 0.283 [0.271, 0.294] (n=10339)
+12:27:41 | s06_eval_det           | INFO    | recall small=0.317 medium=0.314 large=0.253 — the drop is the finding

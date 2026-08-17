@@ -77,6 +77,53 @@ Plausible F1 @ 0.5: 0.50–0.75. **> 0.90 → almost certainly leakage, or too
 few events for the number to mean anything.** State n every time this
 number appears.
 
+## R5b. Measurement artefact found and corrected — **the `leap` term**
+
+Unlike every other table here, this one is **filled**, because it is a
+result about the instrument rather than about the footage. It is reported
+in full — including the version that was wrong — because a corrected
+measurement that hides its own before-state is not checkable.
+
+The `rule` score was a product of four terms. `leap` rewarded high
+`max_vertical_velocity`, on the assumption that players jump at a contest.
+The assumption is true; the *measurement* of it is not. Broadcast framing
+pulls wide for a kickout, players are 0.435× their open-play apparent
+size, and pixel velocity scales with apparent size — so the term was
+lowest exactly where it should have been highest (docs/10 `framing_scale`).
+
+Measured on `lgf26_final_w1` (12 min, 1494 windows), against 8 rough
+`t_peak_s_approx` timestamps. **These are noted timestamps, not coded
+ground truth**; treat every row as indicative, and n = 8.
+
+| | 4-term (`compress·leap·density·quality`) | 3-term (`leap` removed) |
+|---|---|---|
+| Candidates kept (conf ≥ 0.05) | 58 | 70 |
+| Kickouts recovered, ±2 s | 2 / 8 | **5 / 8** |
+| Kickouts recovered, ±3 s | 4 / 8 | **7 / 8** |
+| Kickouts recovered, ±5 s | 5 / 8 | **7 / 8** |
+| Median \|offset\| of matches, ±3 s | 1.56 s | **0.80 s** |
+| **Median score rank of a true kickout** | 443 / 1494 | **223 / 1494** |
+| Precision@8 (top 8 windows, ±3 s) | 1 / 8 | 1 / 8 |
+
+Reproduce either row with `events.rule.terms` in `config.yaml`; the
+four-term setting regenerates the original 58 candidates exactly.
+
+Two things must be said together, because quoting either alone misleads:
+
+1. **The correction is real.** Recall roughly doubles and the median rank
+   of a true kickout halves. The rank row is the one to trust — it is
+   threshold-free, so it is not an artefact of where the 0.05 cut sits.
+2. **It does not make the detector work.** Precision@8 is 1/8 either way:
+   the eight highest-scoring windows still contain one real kickout. The
+   candidate count rose 58 → 70 because removing a multiplicand raises
+   every score. What was fixed is a term pointing the wrong way, not the
+   detector's discriminative power, which remains poor.
+
+**Consequence for earlier results.** Every `s07` output produced before
+2026-08-16 — the 55- and 58-candidate lists — was scored with one of four
+multiplicative terms inverted. Those lists are superseded, not merely
+improved on, and no downstream number derived from them should be quoted.
+
 ## R6. Temporal localisation (`t5_offset.md`)
 
 | | Value | Plausible | Red flag |
@@ -177,6 +224,9 @@ p for each Bland–Altman.
 | aerial_occlusion | | | | | |
 | camera_pan_cut | | | | | |
 | scale_distance | | | | | |
+| framing_scale | | | | | |
+| registration_failure | | | | | |
+| team_assignment_failure | | | | | |
 | no_ball_ambiguity | | | | | |
 | annotation_error | | | | | |
 | other | | | | | |

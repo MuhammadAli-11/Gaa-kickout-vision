@@ -32,10 +32,98 @@ paths:
 # ---------------------------------------------------------------------
 # S00/S01 — ingestion and standardisation
 # ---------------------------------------------------------------------
+# ---------------------------------------------------------------------
+# Remote GPU execution (tools/modal_gpu.py). Only s02/s03 need a GPU.
+# ---------------------------------------------------------------------
+modal:
+  # Must be a GPU string Modal actually exposes — check `modal.com/pricing`
+  # before changing. An unrecognised value fails at deploy, not at run.
+  gpu: "A10G"
+  timeout_s: 7200
+  data_volume: gaa-kickout-data
+  output_volume: gaa-kickout-outputs
+  # Measured on A10G, 2026-08-15: s02 69.0 fps, s03 48.2 fps, 52.9 GPU-s per
+  # video-minute combined. Recorded so a later run on different silicon can be
+  # compared against a real baseline rather than a remembered one.
+
 ingest:
   hash_algorithm: sha256
   hash_bytes: 0                   # 0 = hash whole file; else first N bytes (fast mode)
   require_registry_entry: true    # refuse to process footage with no provenance row
+
+# ---------------------------------------------------------------------
+# Frame sampling for box annotation (tools/sample_frames_for_annotation.py)
+# ---------------------------------------------------------------------
+annotation:
+  # Videos that may NEVER be sampled, for any reason. lgf26_final_w2 is the
+  # only clean test set left; the sampler hard-refuses these ids rather than
+  # relying on the operator passing the right --video-id.
+  holdout_video_ids: [lgf26_final_w2]
+
+  n_frames: 300               # docs/14 Tier 1 figure; 500 is the uncut version
+  small_oversample: 2.0       # weight on small-tercile-rich frames
+  min_outside_contest: 0.35   # >=35% of frames from between kickouts, so false
+                              # positives in ordinary play are measurable at all
+  contest_pad_s: 5.0          # +/- around each t_peak defines a contest window
+  block_s: 60.0               # train/val split unit. NEVER split by frame:
+                              # frames inside a block are near-duplicates and a
+                              # random split leaks the val set into training.
+  val_block_frac: 0.25
+  jpeg_quality: 2             # ffmpeg -q:v, used by the sparse mode
+  jpeg_quality_pct: 95        # OpenCV IMWRITE_JPEG_QUALITY, used by blocks mode.
+                              # ~equivalent to -q:v 2. Blocks mode decodes with
+                              # OpenCV, not ffmpeg, because it reads each block
+                              # straight through instead of seeking per frame.
+                              # Only the JPEG encoder differs; box coordinates,
+                              # which are the actual ground truth, do not depend
+                              # on it.
+  min_boxes_per_frame: 4      # skip near-empty frames; nothing to annotate
+
+  # Contiguous-block mode (tools/sample_frames_for_annotation.py --mode blocks).
+  # Sparse frames cannot be interpolated: every box is drawn by hand and no
+  # track identity exists across them, so they cannot evaluate TRACKING at all.
+  # Contiguous blocks trade scene diversity for interpolation and ID labels.
+  blocks:
+    n_blocks: 2
+    box_every_n_frames: 5     # keyframes; CVAT interpolates the 4 frames between.
+                              # 5 frames = 0.2 s at 25 fps, inside which a player
+                              # moves ~1 m, which linear interpolation handles.
+    require_kickout_per_block: true
+    min_blocks_with_cut: 1    # NOTE: judged on features.scene_change_flag, which
+                              # is an UNVALIDATED track-churn proxy, not a cut
+                              # detector. Treated as advisory - see the manifest.
+    forbid_exclusion_overlap: true   # a block overlapping a replay/slow-motion
+                              # candidate is rejected outright rather than
+                              # hole-punched: a gap would break CVAT interpolation
+                              # across it, and a contiguous block is the point.
+    search_stride_s: 60.0     # 60 = grid-aligned blocks; lower = sliding search
+    n_val_blocks: 1           # of n_blocks. Split by BLOCK, never by frame.
+    # ADJUDICATED BY HAND, 2026-08-16. The pixel scan could not separate a cut
+    # from a fast pan in these blocks (top inter-frame differences reach only
+    # 1.1-1.3x p99), so the question was settled by watching the footage rather
+    # than by choosing a threshold. Verdict: 652.5 s is a FAST PAN, and there is
+    # no hard cut in either block.
+    #
+    # This matters for what can be concluded. `camera_pan_cut` in docs/10 bundles
+    # two mechanisms with different signatures, and these blocks contain only the
+    # pan half. So any tracking failure measured here is attributable to camera
+    # MOTION, and this annotation cannot say anything about hard cuts either way
+    # — there are none in it to measure.
+    confirmed_cuts_s: []
+    confirmed_pans_s: [652.5]
+
+# ---------------------------------------------------------------------
+# Segment extraction from an edited compilation (tools/extract_segments.py)
+# ---------------------------------------------------------------------
+segments:
+  pad_before_s: 10.0    # context before the kickout: the build-up and the set
+  pad_after_s: 25.0     # after: the contest, the break, and the first phase
+  # Windows that OVERLAP are merged into one continuous segment so no frame is
+  # emitted twice. Windows that merely touch (end == start) are left separate:
+  # they share no frame, and merging them would silently change the segment
+  # count that every downstream per-segment split depends on.
+  merge_touching: false
+  min_segment_s: 5.0    # refuse to emit a segment shorter than this
 
 video:
   fps: 25                         # ALL timestamps derive from this. Do not change mid-project.
@@ -77,7 +165,23 @@ track:
 # ---------------------------------------------------------------------
 features:
   smooth_window_frames: 5         # centred moving average on noisy series
-  velocity_window_frames: 3       # finite-difference window for d(cy)/dt
+  # The source broadcast is upstream frame-rate converted: ~15% of frames in the
+  # 25 fps clip repeat the previous one, periodically, about every 4-5 frames
+  # (measured on the RAW 28 fps source, so s01 did not cause it). A difference
+  # window SHORTER than that period makes velocity depend on which phase of the
+  # repeat cycle it lands in. Measured on lgf26_final_w1, max_vertical_velocity:
+  #     w=3  phase spread 17.24 px/s   eta^2 0.00219   <- was the default
+  #     w=8  phase spread  2.33 px/s   eta^2 0.00011   <- 20x less phase-dependent
+  # w must stay above the repeat period; 8 is the knee. Widening further buys
+  # little and washes out contest-versus-open-play differences.
+  velocity_window_frames: 8       # finite-difference window for d(cy)/dt
+  repeat_frame:
+    enabled: true
+    diff_threshold: 0.0005        # mean abs frame difference, 0-1 greyscale
+    downscale: [192, 108]         # detection resolution; full res is not needed
+    drop_from_velocity: true      # measure displacement between DISTINCT frames
+                                  # only. Physically correct; measurably marginal
+                                  # once the window already exceeds the period.
   n_nearest_for_density: 6
   sprint_threshold_ms: 5.5      # m/s; proxy for the 'hard run' distinguishing
                                 # Purposeful from Limited Movement [PAPER, proxy only]
@@ -100,8 +204,30 @@ events:
   stride_s: 0.5
   mode: rule                      # rule | learned
   rule:
+    # The score is the PRODUCT of these terms, each clipped to [0,1].
+    # `leap` was REMOVED on 2026-08-16. It rewarded high max vertical
+    # velocity, but that feature is systematically LOWER during real
+    # contests: the broadcast pulls WIDE to frame a kickout (players measured
+    # at 110.7 px mean bbox height, against 254.4 px in open play — 0.435x)
+    # and pixel velocity scales with apparent size. Measured contest/open-play
+    # ratio 0.694 at +/-2 s, i.e. the term penalised the windows it was meant
+    # to promote. Neither restricting to the tallest tracks nor subtracting
+    # the frame-median (camera common-mode) lifted the ratio above 1.
+    # See docs/10 `framing_scale`.
+    # Add "leap" back to reproduce the four-term pre-correction result.
+    terms: [compress, density, quality]
     spread_percentile: 25         # centroid_spread below this percentile = compressed
-    velocity_percentile: 85       # vertical velocity above this = leap
+    velocity_percentile: 85       # vertical velocity above this = leap.
+                                  # Only read when "leap" is in `terms`.
+    # Where inside a window t_peak_s is placed. Kept on mean_vertical_velocity
+    # after checking whether framing_scale contaminates this too: it does not,
+    # because the confound is a BETWEEN-window effect. Apparent player size
+    # varies 4.4x more across windows (CV 0.662) than inside one 3 s window
+    # (CV 0.150), so scale is near-constant while the argmax is taken and the
+    # peak locator is unaffected. Switching to centroid_spread argmin was tried
+    # and was slightly WORSE against the noted timestamps (6/8 vs 7/8 at +/-3s),
+    # so the principled-sounding change is not made.
+    peak_from: mean_vertical_velocity   # mean_vertical_velocity | centroid_spread
     min_tracks: 8
     min_gap_s: 6.0                # NMS in time: kickouts cannot be 6 s apart
   learned:

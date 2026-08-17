@@ -29,7 +29,7 @@ import json
 import numpy as np
 import pandas as pd
 
-from lib.config import load_config, out_dir, make_provenance
+from lib.config import load_config, out_dir, resolve, make_provenance
 from lib.logging_setup import get_logger
 from lib.pitch import Pitch, apply_homography, foot_point
 from lib.schema import read_table, write_table
@@ -50,7 +50,45 @@ def _smooth(s: pd.Series, w: int) -> pd.Series:
     return s.rolling(w, center=True, min_periods=1).mean()
 
 
-def image_features(tr: pd.DataFrame, cfg: dict, n_frames: int) -> pd.DataFrame:
+def detect_repeat_frames(clip: "Path", cfg: dict, n_frames: int) -> np.ndarray:
+    """Flag frames that are near-identical to the frame before them.
+
+    The broadcast arrives upstream frame-rate converted, so a share of frames
+    carry no new motion. They are not bit-identical — the source is lossily
+    compressed, so a duplicated frame re-encodes with small residuals — which is
+    why this thresholds a mean absolute difference rather than testing equality.
+
+    Detected from PIXELS, not from tracks. Track-based detection was tried and
+    rejected: YOLO box coordinates jitter ~1.4 px even on a repeat against
+    ~4.9 px on a normal frame, and the distributions overlap far too much
+    (best precision 0.40 at recall 0.43).
+    """
+    import cv2
+
+    rf = cfg["features"].get("repeat_frame", {})
+    w, h = rf.get("downscale", [192, 108])
+    thr = float(rf.get("diff_threshold", 0.0005))
+
+    cap = cv2.VideoCapture(str(clip))
+    if not cap.isOpened():
+        raise SystemExit(f"cannot open {clip} for repeat-frame detection")
+    mask = np.zeros(n_frames, dtype=bool)
+    prev, i = None, 0
+    while i < n_frames:
+        ok, frame = cap.read()
+        if not ok:
+            break
+        g = cv2.cvtColor(cv2.resize(frame, (w, h)), cv2.COLOR_BGR2GRAY)
+        g = g.astype(np.float32) / 255.0
+        if prev is not None and float(np.abs(g - prev).mean()) < thr:
+            mask[i] = True
+        prev, i = g, i + 1
+    cap.release()
+    return mask
+
+
+def image_features(tr: pd.DataFrame, cfg: dict, n_frames: int,
+                   repeat_mask: np.ndarray | None = None) -> pd.DataFrame:
     f, fps = cfg["features"], cfg["video"]["fps"]
     g = tr.groupby("frame_idx")
     base = pd.DataFrame({
@@ -65,10 +103,29 @@ def image_features(tr: pd.DataFrame, cfg: dict, n_frames: int) -> pd.DataFrame:
     ).reindex(range(n_frames))
     base["centroid_spread_px"] = np.sqrt(base.sx.fillna(0) ** 2 + base.sy.fillna(0) ** 2)
 
+    # Velocity over TRUE elapsed frames, not assumed ones.
+    #
+    # Two corrections against the previous `cy.diff(w) * fps / w`:
+    #  1. dividing by w assumed the window spanned exactly w frames. A track with
+    #     a gap spans more, and the velocity came out inflated. Dividing by the
+    #     actual frame_idx difference fixes that.
+    #  2. w must exceed the frame-repeat period (~4-5 frames here) or the result
+    #     depends on which phase of the repeat cycle the window lands in. See
+    #     config features.velocity_window_frames for the measured comparison.
     tr = tr.sort_values(["track_id", "frame_idx"])
     w = f["velocity_window_frames"]
-    tr = tr.assign(vy=-tr.groupby("track_id").cy.diff(w) * fps / w)
-    vy = tr.groupby("frame_idx").vy.agg(["mean", "max"]).reindex(range(n_frames))
+    rf = f.get("repeat_frame", {})
+    vsrc = tr
+    if rf.get("enabled") and rf.get("drop_from_velocity") and repeat_mask is not None:
+        rep_frames = set(np.where(repeat_mask)[0].tolist())
+        vsrc = tr[~tr.frame_idx.isin(rep_frames)]
+    g = vsrc.groupby("track_id")
+    vy_series = -g.cy.diff(w) * fps / g.frame_idx.diff(w)
+    vsrc = vsrc.assign(vy=vy_series)
+    vy = vsrc.groupby("frame_idx").vy.agg(["mean", "max"]).reindex(range(n_frames))
+    # Repeat frames carry no velocity of their own; interpolate across them so
+    # the series stays defined without inventing motion.
+    vy = vy.interpolate(limit_direction="both")
     base["mean_vertical_velocity"] = _smooth(vy["mean"], f["smooth_window_frames"])
     base["max_vertical_velocity"] = _smooth(vy["max"], f["smooth_window_frames"])
 
@@ -80,6 +137,9 @@ def image_features(tr: pd.DataFrame, cfg: dict, n_frames: int) -> pd.DataFrame:
         prev = cur
     base["scene_change_flag"] = (churn > f["scene_change_threshold"]).astype("int8")
     base["valid_frame"] = (base.n_tracks >= f["min_tracks_for_valid_frame"]).astype("int8")
+    base["is_repeat_frame"] = (
+        repeat_mask.astype("int8") if repeat_mask is not None
+        else np.zeros(n_frames, dtype="int8"))
 
     base = base.drop(columns=["sx", "sy"]).reset_index(names="frame_idx")
     base["timestamp_s"] = frame_to_time(base.frame_idx, fps)
@@ -179,7 +239,8 @@ def pitch_features(tr: pd.DataFrame, cfg: dict, shots: pd.DataFrame, Hs: dict,
 CANONICAL_COLS = ["frame_idx", "timestamp_s", "n_tracks", "max_bbox_height",
                   "mean_bbox_height", "cluster_density", "centroid_spread",
                   "mean_vertical_velocity", "max_vertical_velocity",
-                  "scene_change_flag", "valid_frame", "feature_space"]
+                  "scene_change_flag", "valid_frame", "is_repeat_frame",
+                  "feature_space"]
 
 
 def canonical_features(img: pd.DataFrame, pit: pd.DataFrame | None) -> pd.DataFrame:
@@ -226,7 +287,21 @@ def main() -> None:
     tr = read_table("tracks", od / "tracks.parquet")
     n_frames = int(tr.frame_idx.max()) + 1
 
-    img = image_features(tr, cfg, n_frames)
+    rf = cfg["features"].get("repeat_frame", {})
+    repeat_mask = None
+    if rf.get("enabled"):
+        clip = resolve(cfg, "clips") / f"{args.video_id}_working.mp4"
+        if clip.exists():
+            repeat_mask = detect_repeat_frames(clip, cfg, n_frames)
+            log.info("repeat frames: %d / %d (%.2f%%) — upstream frame-rate "
+                     "conversion in the broadcast, not slow motion",
+                     int(repeat_mask.sum()), n_frames,
+                     100 * repeat_mask.mean())
+        else:
+            log.warning("no clip at %s — repeat-frame detection skipped and "
+                        "is_repeat_frame will be all zero", clip)
+
+    img = image_features(tr, cfg, n_frames, repeat_mask)
     write_table(img, "features_image", od / "features_image.parquet")
     log.info("image features: %d frames | valid %.0f%% | cuts %d",
              len(img), 100 * img.valid_frame.mean(), int(img.scene_change_flag.sum()))
