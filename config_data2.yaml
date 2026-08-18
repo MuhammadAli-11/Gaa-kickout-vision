@@ -15,6 +15,11 @@
 # There the 1280 -> 960 change would discard real resolution and is
 # exactly the small-object recall collapse s02's docstring warns about.
 #
+# Second change: detect.half true -> false. fp16 is a GPU feature; on CPU
+# torch emulates it and inference collapses from 1.35 s/frame to over 100
+# s/frame (measured — a 5-frame benchmark timed out at 500 s). It changes
+# nothing about detection semantics on hardware with no fp16 units.
+#
 # Because detect.imgsz is in the run_id hash subset, this config resolves
 # to its own outputs/run_<hash>/ directory and cannot collide with or
 # overwrite any lgf26_final_w1 artefact.
@@ -88,7 +93,7 @@ detect:
   iou: 0.5
   imgsz: 960
   device: auto
-  half: true
+  half: false
   batch: 16
   max_det: 60
 track:

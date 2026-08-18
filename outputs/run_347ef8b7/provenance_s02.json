@@ -1,0 +1,26 @@
+{
+  "stage": "s02_detect",
+  "run_id": "run_347ef8b7",
+  "git_sha": "aa09706",
+  "config_hash": "dd45c4a7",
+  "created_utc": "2026-08-17T14:58:40+00:00",
+  "inputs": [
+    "C:\\Users\\Dark\\training\\projects\\project_1\\gaa-kickout-vision\\data\\clips\\data_2_seg10_ko_001_working.mp4"
+  ],
+  "params": {
+    "weights": "yolov8m.pt",
+    "classes": [
+      0
+    ],
+    "conf": 0.25,
+    "iou": 0.5,
+    "imgsz": 960,
+    "device": "auto",
+    "half": false,
+    "batch": 16,
+    "max_det": 60,
+    "n_frames": 200,
+    "wall_s": 222.8139129000192,
+    "throughput_fps": 0.8976100163446425
+  }
+}

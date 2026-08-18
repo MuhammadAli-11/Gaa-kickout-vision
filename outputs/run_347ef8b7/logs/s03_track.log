@@ -1,0 +1,57 @@
+17:13:49 | s03_track              | INFO    | tracks=33 (dropped 66 shorter than 5 frames) rows=941 wall=277.0s
+17:13:49 | s03_track              | INFO    | mean tracks/frame=4.9  median track length=25.0 frames (1.00s)
+17:13:49 | s03_track              | INFO    | RED FLAG CHECK: if unique track_ids ~= mean tracks/frame, tracking is not actually associating across frames.
+17:31:21 | s03_track              | INFO    | tracks=67 (dropped 72 shorter than 5 frames) rows=1311 wall=220.5s
+17:31:21 | s03_track              | INFO    | mean tracks/frame=6.9  median track length=11.0 frames (0.44s)
+17:31:21 | s03_track              | INFO    | RED FLAG CHECK: if unique track_ids ~= mean tracks/frame, tracking is not actually associating across frames.
+17:39:03 | s03_track              | INFO    | tracks=57 (dropped 77 shorter than 5 frames) rows=1140 wall=225.5s
+17:39:03 | s03_track              | INFO    | mean tracks/frame=5.8  median track length=11.0 frames (0.44s)
+17:39:03 | s03_track              | INFO    | RED FLAG CHECK: if unique track_ids ~= mean tracks/frame, tracking is not actually associating across frames.
+17:48:00 | s03_track              | INFO    | tracks=40 (dropped 31 shorter than 5 frames) rows=1616 wall=247.8s
+17:48:00 | s03_track              | INFO    | mean tracks/frame=8.2  median track length=18.5 frames (0.74s)
+17:48:00 | s03_track              | INFO    | RED FLAG CHECK: if unique track_ids ~= mean tracks/frame, tracking is not actually associating across frames.
+17:56:17 | s03_track              | INFO    | tracks=38 (dropped 39 shorter than 5 frames) rows=942 wall=237.9s
+17:56:17 | s03_track              | INFO    | mean tracks/frame=4.8  median track length=17.0 frames (0.68s)
+17:56:17 | s03_track              | INFO    | RED FLAG CHECK: if unique track_ids ~= mean tracks/frame, tracking is not actually associating across frames.
+18:07:38 | s03_track              | INFO    | tracks=28 (dropped 24 shorter than 5 frames) rows=1047 wall=316.0s
+18:07:38 | s03_track              | INFO    | mean tracks/frame=5.4  median track length=27.0 frames (1.08s)
+18:07:38 | s03_track              | INFO    | RED FLAG CHECK: if unique track_ids ~= mean tracks/frame, tracking is not actually associating across frames.
+18:17:12 | s03_track              | INFO    | tracks=46 (dropped 46 shorter than 5 frames) rows=1206 wall=227.9s
+18:17:12 | s03_track              | INFO    | mean tracks/frame=6.1  median track length=16.0 frames (0.64s)
+18:17:12 | s03_track              | INFO    | RED FLAG CHECK: if unique track_ids ~= mean tracks/frame, tracking is not actually associating across frames.
+18:24:58 | s03_track              | INFO    | tracks=40 (dropped 33 shorter than 5 frames) rows=1765 wall=223.1s
+18:24:58 | s03_track              | INFO    | mean tracks/frame=8.9  median track length=31.0 frames (1.24s)
+18:24:58 | s03_track              | INFO    | RED FLAG CHECK: if unique track_ids ~= mean tracks/frame, tracking is not actually associating across frames.
+18:34:06 | s03_track              | INFO    | tracks=48 (dropped 38 shorter than 5 frames) rows=1171 wall=287.9s
+18:34:06 | s03_track              | INFO    | mean tracks/frame=5.9  median track length=19.0 frames (0.76s)
+18:34:06 | s03_track              | INFO    | RED FLAG CHECK: if unique track_ids ~= mean tracks/frame, tracking is not actually associating across frames.
+18:43:41 | s03_track              | INFO    | tracks=35 (dropped 32 shorter than 5 frames) rows=782 wall=278.8s
+18:43:41 | s03_track              | INFO    | mean tracks/frame=4.3  median track length=24.0 frames (0.96s)
+18:43:41 | s03_track              | INFO    | RED FLAG CHECK: if unique track_ids ~= mean tracks/frame, tracking is not actually associating across frames.
+18:52:50 | s03_track              | INFO    | tracks=32 (dropped 2 shorter than 5 frames) rows=1653 wall=250.1s
+18:52:50 | s03_track              | INFO    | mean tracks/frame=8.3  median track length=51.0 frames (2.04s)
+18:52:50 | s03_track              | INFO    | RED FLAG CHECK: if unique track_ids ~= mean tracks/frame, tracking is not actually associating across frames.
+19:01:46 | s03_track              | INFO    | tracks=70 (dropped 40 shorter than 5 frames) rows=2943 wall=249.8s
+19:01:46 | s03_track              | INFO    | mean tracks/frame=15.0  median track length=30.5 frames (1.22s)
+19:01:46 | s03_track              | INFO    | RED FLAG CHECK: if unique track_ids ~= mean tracks/frame, tracking is not actually associating across frames.
+19:11:21 | s03_track              | INFO    | tracks=45 (dropped 25 shorter than 5 frames) rows=1948 wall=301.6s
+19:11:21 | s03_track              | INFO    | mean tracks/frame=9.8  median track length=26.0 frames (1.04s)
+19:11:21 | s03_track              | INFO    | RED FLAG CHECK: if unique track_ids ~= mean tracks/frame, tracking is not actually associating across frames.
+19:21:21 | s03_track              | INFO    | tracks=69 (dropped 44 shorter than 5 frames) rows=3305 wall=276.7s
+19:21:21 | s03_track              | INFO    | mean tracks/frame=16.6  median track length=16.0 frames (0.64s)
+19:21:21 | s03_track              | INFO    | RED FLAG CHECK: if unique track_ids ~= mean tracks/frame, tracking is not actually associating across frames.
+19:30:43 | s03_track              | INFO    | tracks=28 (dropped 26 shorter than 5 frames) rows=819 wall=257.5s
+19:30:43 | s03_track              | INFO    | mean tracks/frame=4.2  median track length=28.5 frames (1.14s)
+19:30:43 | s03_track              | INFO    | RED FLAG CHECK: if unique track_ids ~= mean tracks/frame, tracking is not actually associating across frames.
+19:39:02 | s03_track              | INFO    | tracks=19 (dropped 16 shorter than 5 frames) rows=667 wall=242.6s
+19:39:02 | s03_track              | INFO    | mean tracks/frame=3.4  median track length=32.0 frames (1.28s)
+19:39:02 | s03_track              | INFO    | RED FLAG CHECK: if unique track_ids ~= mean tracks/frame, tracking is not actually associating across frames.
+19:47:07 | s03_track              | INFO    | tracks=66 (dropped 12 shorter than 5 frames) rows=3458 wall=222.5s
+19:47:07 | s03_track              | INFO    | mean tracks/frame=17.4  median track length=32.5 frames (1.30s)
+19:47:07 | s03_track              | INFO    | RED FLAG CHECK: if unique track_ids ~= mean tracks/frame, tracking is not actually associating across frames.
+19:54:49 | s03_track              | INFO    | tracks=85 (dropped 80 shorter than 5 frames) rows=2133 wall=220.6s
+19:54:49 | s03_track              | INFO    | mean tracks/frame=10.8  median track length=14.0 frames (0.56s)
+19:54:49 | s03_track              | INFO    | RED FLAG CHECK: if unique track_ids ~= mean tracks/frame, tracking is not actually associating across frames.
+20:02:32 | s03_track              | INFO    | tracks=53 (dropped 41 shorter than 5 frames) rows=1413 wall=226.5s
+20:02:32 | s03_track              | INFO    | mean tracks/frame=7.3  median track length=19.0 frames (0.76s)
+20:02:32 | s03_track              | INFO    | RED FLAG CHECK: if unique track_ids ~= mean tracks/frame, tracking is not actually associating across frames.

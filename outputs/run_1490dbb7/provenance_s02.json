@@ -1,11 +1,11 @@
 {
   "stage": "s02_detect",
-  "run_id": "run_4c9cad33",
-  "git_sha": "nogit",
-  "config_hash": "6d5641f5",
-  "created_utc": "2026-08-15T13:45:59+00:00",
+  "run_id": "run_1490dbb7",
+  "git_sha": "aa09706",
+  "config_hash": "f6bbc84a",
+  "created_utc": "2026-08-17T15:58:45+00:00",
   "inputs": [
-    "/root/repo/data/clips/lgf26_final_w1_working.mp4"
+    "C:\\Users\\Dark\\training\\projects\\project_1\\gaa-kickout-vision\\data\\clips\\data_2_seg02_working.mp4"
   ],
   "params": {
     "weights": "yolov8m.pt",
@@ -19,8 +19,8 @@
     "half": true,
     "batch": 16,
     "max_det": 60,
-    "n_frames": 18000,
-    "wall_s": 260.774917402,
-    "throughput_fps": 69.02504343334498
+    "n_frames": 50,
+    "wall_s": 22797.94059840002,
+    "throughput_fps": 0.002193180554365908
   }
 }

@@ -1,0 +1,60 @@
+16:32:06 | s02_detect             | INFO    | detector=yolov8m.pt imgsz=960 conf=0.25 device=auto
+16:36:00 | s02_detect             | INFO    | detector=yolov8m.pt imgsz=960 conf=0.25 device=auto
+16:36:27 | s02_detect             | INFO    | frames=200 dets=1587 wall=260.3s throughput=0.77 fps (1951.9 GPU-s per video-minute)
+16:36:27 | s02_detect             | INFO    | mean detections/frame = 7.93 (expect 8-22 on a wide GAA shot)
+16:40:49 | s02_detect             | INFO    | frames=200 dets=1587 wall=288.8s throughput=0.69 fps (2165.7 GPU-s per video-minute)
+16:40:49 | s02_detect             | INFO    | mean detections/frame = 7.93 (expect 8-22 on a wide GAA shot)
+17:23:44 | s02_detect             | INFO    | detector=yolov8m.pt imgsz=960 conf=0.25 device=auto
+17:27:34 | s02_detect             | INFO    | frames=200 dets=1897 wall=229.8s throughput=0.87 fps (1723.3 GPU-s per video-minute)
+17:27:34 | s02_detect             | INFO    | mean detections/frame = 9.48 (expect 8-22 on a wide GAA shot)
+17:31:29 | s02_detect             | INFO    | detector=yolov8m.pt imgsz=960 conf=0.25 device=auto
+17:35:12 | s02_detect             | INFO    | frames=200 dets=1680 wall=222.7s throughput=0.90 fps (1670.1 GPU-s per video-minute)
+17:35:12 | s02_detect             | INFO    | mean detections/frame = 8.40 (expect 8-22 on a wide GAA shot)
+17:39:15 | s02_detect             | INFO    | detector=yolov8m.pt imgsz=960 conf=0.25 device=auto
+17:43:29 | s02_detect             | INFO    | frames=200 dets=1875 wall=253.7s throughput=0.79 fps (1903.1 GPU-s per video-minute)
+17:43:29 | s02_detect             | INFO    | mean detections/frame = 9.38 (expect 8-22 on a wide GAA shot)
+17:48:12 | s02_detect             | INFO    | detector=yolov8m.pt imgsz=960 conf=0.25 device=auto
+17:52:13 | s02_detect             | INFO    | frames=200 dets=1352 wall=240.4s throughput=0.83 fps (1802.9 GPU-s per video-minute)
+17:52:13 | s02_detect             | INFO    | mean detections/frame = 6.76 (expect 8-22 on a wide GAA shot)
+17:56:26 | s02_detect             | INFO    | detector=yolov8m.pt imgsz=960 conf=0.25 device=auto
+18:01:41 | s02_detect             | INFO    | frames=200 dets=1538 wall=314.4s throughput=0.64 fps (2358.1 GPU-s per video-minute)
+18:01:41 | s02_detect             | INFO    | mean detections/frame = 7.69 (expect 8-22 on a wide GAA shot)
+18:08:23 | s02_detect             | INFO    | detector=yolov8m.pt imgsz=960 conf=0.25 device=auto
+18:13:09 | s02_detect             | INFO    | frames=200 dets=1765 wall=283.5s throughput=0.71 fps (2126.0 GPU-s per video-minute)
+18:13:09 | s02_detect             | INFO    | mean detections/frame = 8.82 (expect 8-22 on a wide GAA shot)
+18:17:23 | s02_detect             | INFO    | detector=yolov8m.pt imgsz=960 conf=0.25 device=auto
+18:21:09 | s02_detect             | INFO    | frames=200 dets=2299 wall=225.8s throughput=0.89 fps (1693.8 GPU-s per video-minute)
+18:21:09 | s02_detect             | INFO    | mean detections/frame = 11.49 (expect 8-22 on a wide GAA shot)
+18:25:06 | s02_detect             | INFO    | detector=yolov8m.pt imgsz=960 conf=0.25 device=auto
+18:29:10 | s02_detect             | INFO    | frames=200 dets=1667 wall=243.6s throughput=0.82 fps (1826.8 GPU-s per video-minute)
+18:29:10 | s02_detect             | INFO    | mean detections/frame = 8.34 (expect 8-22 on a wide GAA shot)
+18:34:19 | s02_detect             | INFO    | detector=yolov8m.pt imgsz=960 conf=0.25 device=auto
+18:38:54 | s02_detect             | INFO    | frames=200 dets=1229 wall=275.3s throughput=0.73 fps (2064.7 GPU-s per video-minute)
+18:38:54 | s02_detect             | INFO    | mean detections/frame = 6.14 (expect 8-22 on a wide GAA shot)
+18:44:01 | s02_detect             | INFO    | detector=yolov8m.pt imgsz=960 conf=0.25 device=auto
+18:48:28 | s02_detect             | INFO    | frames=200 dets=1725 wall=266.1s throughput=0.75 fps (1995.6 GPU-s per video-minute)
+18:48:28 | s02_detect             | INFO    | mean detections/frame = 8.62 (expect 8-22 on a wide GAA shot)
+18:52:58 | s02_detect             | INFO    | detector=yolov8m.pt imgsz=960 conf=0.25 device=auto
+18:57:23 | s02_detect             | INFO    | frames=200 dets=3407 wall=264.7s throughput=0.76 fps (1985.6 GPU-s per video-minute)
+18:57:23 | s02_detect             | INFO    | mean detections/frame = 17.04 (expect 8-22 on a wide GAA shot)
+19:01:55 | s02_detect             | INFO    | detector=yolov8m.pt imgsz=960 conf=0.25 device=auto
+19:06:11 | s02_detect             | INFO    | frames=200 dets=2309 wall=255.6s throughput=0.78 fps (1916.8 GPU-s per video-minute)
+19:06:11 | s02_detect             | INFO    | mean detections/frame = 11.54 (expect 8-22 on a wide GAA shot)
+19:11:35 | s02_detect             | INFO    | detector=yolov8m.pt imgsz=960 conf=0.25 device=auto
+19:16:24 | s02_detect             | INFO    | frames=200 dets=3759 wall=287.5s throughput=0.70 fps (2156.2 GPU-s per video-minute)
+19:16:24 | s02_detect             | INFO    | mean detections/frame = 18.80 (expect 8-22 on a wide GAA shot)
+19:21:33 | s02_detect             | INFO    | detector=yolov8m.pt imgsz=960 conf=0.25 device=auto
+19:26:17 | s02_detect             | INFO    | frames=200 dets=1053 wall=284.1s throughput=0.70 fps (2130.7 GPU-s per video-minute)
+19:26:17 | s02_detect             | INFO    | mean detections/frame = 5.26 (expect 8-22 on a wide GAA shot)
+19:30:51 | s02_detect             | INFO    | detector=yolov8m.pt imgsz=960 conf=0.25 device=auto
+19:34:54 | s02_detect             | INFO    | frames=200 dets=766 wall=242.5s throughput=0.82 fps (1819.1 GPU-s per video-minute)
+19:34:54 | s02_detect             | INFO    | mean detections/frame = 3.83 (expect 8-22 on a wide GAA shot)
+19:39:10 | s02_detect             | INFO    | detector=yolov8m.pt imgsz=960 conf=0.25 device=auto
+19:43:15 | s02_detect             | INFO    | frames=200 dets=3835 wall=245.0s throughput=0.82 fps (1837.2 GPU-s per video-minute)
+19:43:15 | s02_detect             | INFO    | mean detections/frame = 19.18 (expect 8-22 on a wide GAA shot)
+19:47:16 | s02_detect             | INFO    | detector=yolov8m.pt imgsz=960 conf=0.25 device=auto
+19:51:01 | s02_detect             | INFO    | frames=200 dets=2982 wall=224.4s throughput=0.89 fps (1682.8 GPU-s per video-minute)
+19:51:01 | s02_detect             | INFO    | mean detections/frame = 14.91 (expect 8-22 on a wide GAA shot)
+19:54:57 | s02_detect             | INFO    | detector=yolov8m.pt imgsz=960 conf=0.25 device=auto
+19:58:40 | s02_detect             | INFO    | frames=200 dets=2132 wall=222.8s throughput=0.90 fps (1671.1 GPU-s per video-minute)
+19:58:40 | s02_detect             | INFO    | mean detections/frame = 10.66 (expect 8-22 on a wide GAA shot)
