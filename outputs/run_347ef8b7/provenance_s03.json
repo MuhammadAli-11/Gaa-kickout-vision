@@ -1,0 +1,20 @@
+{
+  "stage": "s03_track",
+  "run_id": "run_347ef8b7",
+  "git_sha": "aa09706",
+  "config_hash": "dd45c4a7",
+  "created_utc": "2026-08-17T15:02:32+00:00",
+  "inputs": [
+    "C:\\Users\\Dark\\training\\projects\\project_1\\gaa-kickout-vision\\data\\clips\\data_2_seg10_ko_001_working.mp4"
+  ],
+  "params": {
+    "tracker": "bytetrack",
+    "track_high_thresh": 0.5,
+    "track_low_thresh": 0.1,
+    "new_track_thresh": 0.6,
+    "track_buffer": 30,
+    "match_thresh": 0.8,
+    "min_track_len_frames": 5,
+    "wall_s": 226.52602420002222
+  }
+}
